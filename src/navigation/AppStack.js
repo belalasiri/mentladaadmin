@@ -11,6 +11,7 @@ import Profile from '../Screens/Profile';
 import SignUp from '../Screens/SignUp';
 import Details from '../Screens/Details';
 import ProfessionalProfile from '../Screens/ProfessionalProfile';
+import EditProfessionalProfile from '../Screens/subScreens/EditProfessionalProfile';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -72,6 +73,10 @@ export default function AppStack() {
         <Stack.Screen
           name="ProfessionalProfile"
           component={ProfessionalProfile}
+        />
+        <Stack.Screen
+          name="EditProfessionalProfile"
+          component={EditProfessionalProfile}
         />
       </Stack.Navigator>
     </SafeAreaProvider>

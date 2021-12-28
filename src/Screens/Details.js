@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {
   Text,
   View,
@@ -10,28 +10,29 @@ import {
 } from 'react-native';
 
 import firestore from '@react-native-firebase/firestore';
-import {COLORS, FONTS, SIZES} from '../constants';
+import {COLORS, FONTS, icons, SIZES} from '../constants';
 
 //Libraries
 import Icon from 'react-native-vector-icons/Ionicons';
-import Feather from 'react-native-vector-icons/Feather';
-import {Avatar, ListItem} from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
+import BlogSwitch from '../components/BlogSwitch';
 
 const Details = ({navigation, route}) => {
-  const [userData, setUserData] = useState(null);
   const [Profdata, setProfdata] = useState(null);
+  const [ProfVarData, setProfVarData] = useState(null);
+  const [unVarProfs, setunVarProfs] = useState(null);
+  const [requests, setRequests] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const UresData = route.params;
-  const Heder = ({onBacePress, name}) => {
+
+  const Heder = ({onBacePress, name, icon, iconColor}) => {
     return (
       <View
         style={{
           flexDirection: 'row',
           paddingHorizontal: 10,
-          paddingVertical: 10,
-          // marginTop: 5,
+          paddingTop: 10,
           alignItems: 'center',
         }}>
         {/* GoBack */}
@@ -63,14 +64,31 @@ const Details = ({navigation, route}) => {
         </View>
 
         {/* Profile */}
-        <View style={{marginRight: 20, tintColor: UresData.color}}>
+        {/* 
+        <View style={{marginRight: 20, tintColor: route.params.color}}>
           <Image
-            source={UresData.icon}
+            // source={route.params.icon}
+            source={icon}
             resizeMode="contain"
             style={{
               height: 25,
               width: 25,
-              tintColor: UresData.color,
+              // tintColor: route.params.color,
+              tintColor: {iconColor},
+            }}
+          />
+        </View>
+        */}
+        <View style={{marginRight: 20, tintColor: UresData.color}}>
+          <Image
+            // source={UresData.icon}
+            source={icon}
+            resizeMode="contain"
+            style={{
+              height: 25,
+              width: 25,
+              // tintColor: UresData.color,
+              tintColor: iconColor,
             }}
           />
         </View>
@@ -78,16 +96,15 @@ const Details = ({navigation, route}) => {
     );
   };
 
-  let profList = [];
-
-  const fetchProf = async () => {
-    await firestore()
+  useLayoutEffect(() => {
+    const fetchProfs = firestore()
       .collection('Professional')
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          profList.push({
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot =>
+        setProfdata(
+          snapshot.docs.map(doc => ({
             id: doc.id,
+            professionalId: doc.data().professionalId,
             fname: doc.data().fname,
             lname: doc.data().lname,
             email: doc.data().email,
@@ -98,22 +115,57 @@ const Details = ({navigation, route}) => {
             userImg: doc.data().userImg,
             role: doc.data().role,
             specialization: doc.data().specialization,
-          });
-        });
-      })
-      .catch(e => {
-        console.log(e);
-      });
-    setProfdata(profList);
+            Verified: doc.data().Verified,
+          })),
+        ),
+      );
+    const fetchOwnProfs = firestore()
+      .collection('Professional')
+      .where('Verified', '==', 'Verified')
+      .onSnapshot(snapshot =>
+        setProfVarData(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            professionalId: doc.data().professionalId,
+            fname: doc.data().fname,
+            lname: doc.data().lname,
+            email: doc.data().email,
+            about: doc.data().about,
+            Experience: doc.data().Experience,
+            License: doc.data().License,
+            Specialty: doc.data().Specialty,
+            userImg: doc.data().userImg,
+            role: doc.data().role,
+            specialization: doc.data().specialization,
+            Verified: doc.data().Verified,
+          })),
+        ),
+      );
+    const fetchUnVarProfs = firestore()
+      .collection('Professional')
+      .where('Verified', '!=', 'Verified')
+      .onSnapshot(snapshot =>
+        setunVarProfs(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            professionalId: doc.data().professionalId,
+            fname: doc.data().fname,
+            lname: doc.data().lname,
+            email: doc.data().email,
+            about: doc.data().about,
+            Experience: doc.data().Experience,
+            License: doc.data().License,
+            Specialty: doc.data().Specialty,
+            userImg: doc.data().userImg,
+            role: doc.data().role,
+            specialization: doc.data().specialization,
+            Verified: doc.data().Verified,
+          })),
+        ),
+      );
 
-    if (loading) {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProf();
-  }, []);
+    return fetchProfs, fetchOwnProfs, fetchUnVarProfs;
+  }, [navigation]);
 
   const ProfilePic = ({Userimage}) => {
     return (
@@ -124,18 +176,43 @@ const Details = ({navigation, route}) => {
     );
   };
 
+  const onSelectSwitch = value => {
+    setRequests(value);
+  };
+
   const Content = ({
     professionalsName,
     professionalSpecialty,
     professionalExperience,
+    isVerified,
   }) => {
     return (
       <View style={{justifyContent: 'space-between'}}>
-        <Text
-          style={{color: COLORS.secondary, ...FONTS.h5, paddingVertical: 5}}>
-          {professionalsName}
-        </Text>
-
+        <View
+          style={{
+            flexDirection: 'row',
+          }}>
+          <Text
+            style={{color: COLORS.secondary, ...FONTS.h5, paddingVertical: 5}}>
+            {professionalsName}
+          </Text>
+          {isVerified == 'notVerified' ? null : isVerified == 'Verified' ? (
+            <View
+              style={{
+                paddingTop: 9,
+              }}>
+              <Image
+                source={icons.verifiedUser}
+                style={{
+                  width: 15,
+                  height: 17,
+                  marginLeft: 5,
+                  tintColor: COLORS.primary,
+                }}
+              />
+            </View>
+          ) : null}
+        </View>
         <Text
           style={{
             ...FONTS.body4,
@@ -156,163 +233,280 @@ const Details = ({navigation, route}) => {
       }}>
       <Heder
         name={UresData.description}
+        icon={UresData.icon}
+        iconColor={UresData.color}
         onBacePress={() => navigation.goBack()}
       />
+
       {UresData.description == 'Professionals' ? (
         <>
-          <FlatList
-            data={Profdata}
-            keyExtractor={item => item.id}
-            showsVerticalScrollIndicator={false}
-            renderItem={({id, item}) => (
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('ProfessionalProfile', {
-                    profName: item.fname + ' ' + item.lname,
-                    profEmail: item.email,
-                    profAvatar: item.userImg,
-                    profRole: item.role,
-                    profExperience: item.Experience,
-                    profAbout: item.about,
-                    profLicense: item.License,
-                    profSpecialty: item.Specialty,
-                    specialization: item.specialization,
-                    // userName: userData.fname + ' ' + userData.lname,
-                    // userEmail: userData.email,
-                    // userAvatar: userData.userImg,
-                    // userRole: userData.role,
-                  })
-                }>
-                <LinearGradient
-                  colors={['#f7f3fc', '#fff']}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 0}}
-                  style={{
-                    flexDirection: 'row',
-                    marginHorizontal: 15,
-                    marginVertical: 5,
-                    alignItems: 'center',
-                    borderRadius: 7,
-                    padding: 10,
-                  }}>
-                  <View
-                    style={{
-                      // flex: 1,
-                      alignItems: 'flex-start',
-                      justifyContent: 'center',
-                    }}>
-                    <ProfilePic
-                      Userimage={{
-                        uri:
-                          item.userImg ||
-                          'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
-                      }}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      alignItems: 'flex-start',
-                      justifyContent: 'center',
-                      marginHorizontal: 20,
-                    }}>
-                    <Content
-                      professionalsName={item.fname + ' ' + item.lname}
-                      professionalExperience={item.Experience}
-                      professionalSpecialty={item.Specialty}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      // flex: 1,
-                      alignItems: 'flex-end',
-                      justifyContent: 'center',
-                    }}>
-                    <Icon name="chevron-forward" size={26} color="#a076cd" />
-                  </View>
-                  {/* <Text>{Profdata ? item.fname || 'Mentlada' : 'Mentlada'}</Text>*/}
-                </LinearGradient>
-              </TouchableOpacity>
-            )}
+          <BlogSwitch
+            selectionMode={1}
+            option1="All"
+            option2="Verified"
+            option3="Unverified"
+            onSelectSwitch={onSelectSwitch}
           />
+          {requests == 1 && (
+            <View style={{flex: 1}}>
+              <FlatList
+                data={Profdata}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({id, item}) => (
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('ProfessionalProfile', {
+                        professionalId: item.professionalId,
+                        fname: item.fname,
+                        lname: item.lname,
+                        profName: item.fname + ' ' + item.lname,
+                        profEmail: item.email,
+                        profAvatar: item.userImg,
+                        profRole: item.role,
+                        profExperience: item.Experience,
+                        profAbout: item.about,
+                        profLicense: item.License,
+                        profSpecialty: item.Specialty,
+                        specialization: item.specialization,
+                        professionalId: item.professionalId,
+                      })
+                    }>
+                    <LinearGradient
+                      colors={['#f7f3fc', '#fff']}
+                      start={{x: 0, y: 0}}
+                      end={{x: 1, y: 0}}
+                      style={{
+                        flexDirection: 'row',
+                        marginHorizontal: 15,
+                        marginVertical: 5,
+                        alignItems: 'center',
+                        borderRadius: 7,
+                        padding: 10,
+                      }}>
+                      <View
+                        style={{
+                          // flex: 1,
+                          alignItems: 'flex-start',
+                          justifyContent: 'center',
+                        }}>
+                        <ProfilePic
+                          Userimage={{
+                            uri:
+                              item.userImg ||
+                              'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
+                          }}
+                        />
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'flex-start',
+                          justifyContent: 'center',
+                          marginHorizontal: 20,
+                        }}>
+                        <Content
+                          professionalsName={item.fname + ' ' + item.lname}
+                          professionalExperience={item.Experience}
+                          professionalSpecialty={item.Specialty}
+                          isVerified={item.Verified}
+                        />
+                      </View>
+                      <View
+                        style={{
+                          // flex: 1,
+                          alignItems: 'flex-end',
+                          justifyContent: 'center',
+                        }}>
+                        <Icon
+                          name="chevron-forward"
+                          size={26}
+                          color="#a076cd"
+                        />
+                      </View>
+
+                      {/* <Text>{Profdata ? item.fname || 'Mentlada' : 'Mentlada'}</Text>*/}
+                    </LinearGradient>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
+          {requests == 2 && (
+            <View style={{flex: 1}}>
+              <FlatList
+                data={ProfVarData}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({id, item}) => (
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('ProfessionalProfile', {
+                        professionalId: item.professionalId,
+                        fname: item.fname,
+                        lname: item.lname,
+                        profName: item.fname + ' ' + item.lname,
+                        profEmail: item.email,
+                        profAvatar: item.userImg,
+                        profRole: item.role,
+                        profExperience: item.Experience,
+                        profAbout: item.about,
+                        profLicense: item.License,
+                        profSpecialty: item.Specialty,
+                        specialization: item.specialization,
+                        professionalId: item.professionalId,
+                      })
+                    }>
+                    <LinearGradient
+                      colors={['#f7f3fc', '#fff']}
+                      start={{x: 0, y: 0}}
+                      end={{x: 1, y: 0}}
+                      style={{
+                        flexDirection: 'row',
+                        marginHorizontal: 15,
+                        marginVertical: 5,
+                        alignItems: 'center',
+                        borderRadius: 7,
+                        padding: 10,
+                      }}>
+                      <View
+                        style={{
+                          // flex: 1,
+                          alignItems: 'flex-start',
+                          justifyContent: 'center',
+                        }}>
+                        <ProfilePic
+                          Userimage={{
+                            uri:
+                              item.userImg ||
+                              'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
+                          }}
+                        />
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'flex-start',
+                          justifyContent: 'center',
+                          marginHorizontal: 20,
+                        }}>
+                        <Content
+                          professionalsName={item.fname + ' ' + item.lname}
+                          professionalExperience={item.Experience}
+                          professionalSpecialty={item.Specialty}
+                          isVerified={item.Verified}
+                        />
+                      </View>
+                      <View
+                        style={{
+                          // flex: 1,
+                          alignItems: 'flex-end',
+                          justifyContent: 'center',
+                        }}>
+                        <Icon
+                          name="chevron-forward"
+                          size={26}
+                          color="#a076cd"
+                        />
+                      </View>
+
+                      {/* <Text>{Profdata ? item.fname || 'Mentlada' : 'Mentlada'}</Text>*/}
+                    </LinearGradient>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
+          {requests == 3 && (
+            <View style={{flex: 1}}>
+              <FlatList
+                data={unVarProfs}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({id, item}) => (
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('ProfessionalProfile', {
+                        professionalId: item.professionalId,
+                        fname: item.fname,
+                        lname: item.lname,
+                        profName: item.fname + ' ' + item.lname,
+                        profEmail: item.email,
+                        profAvatar: item.userImg,
+                        profRole: item.role,
+                        profExperience: item.Experience,
+                        profAbout: item.about,
+                        profLicense: item.License,
+                        profSpecialty: item.Specialty,
+                        specialization: item.specialization,
+                        professionalId: item.professionalId,
+                      })
+                    }>
+                    <LinearGradient
+                      colors={['#f7f3fc', '#fff']}
+                      start={{x: 0, y: 0}}
+                      end={{x: 1, y: 0}}
+                      style={{
+                        flexDirection: 'row',
+                        marginHorizontal: 15,
+                        marginVertical: 5,
+                        alignItems: 'center',
+                        borderRadius: 7,
+                        padding: 10,
+                      }}>
+                      <View
+                        style={{
+                          // flex: 1,
+                          alignItems: 'flex-start',
+                          justifyContent: 'center',
+                        }}>
+                        <ProfilePic
+                          Userimage={{
+                            uri:
+                              item.userImg ||
+                              'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
+                          }}
+                        />
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'flex-start',
+                          justifyContent: 'center',
+                          marginHorizontal: 20,
+                        }}>
+                        <Content
+                          professionalsName={item.fname + ' ' + item.lname}
+                          professionalExperience={item.Experience}
+                          professionalSpecialty={item.Specialty}
+                          isVerified={item.Verified}
+                        />
+                      </View>
+                      <View
+                        style={{
+                          // flex: 1,
+                          alignItems: 'flex-end',
+                          justifyContent: 'center',
+                        }}>
+                        <Icon
+                          name="chevron-forward"
+                          size={26}
+                          color="#a076cd"
+                        />
+                      </View>
+
+                      {/* <Text>{Profdata ? item.fname || 'Mentlada' : 'Mentlada'}</Text>*/}
+                    </LinearGradient>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
         </>
       ) : UresData.description == 'Patients' ? (
-        <>
-          <FlatList
-            data={Profdata}
-            keyExtractor={item => item.id}
-            showsVerticalScrollIndicator={false}
-            renderItem={({id, item}) => (
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('ProfessionalProfile', {
-                    profName: item.fname + ' ' + item.lname,
-                    profEmail: item.email,
-                    profAvatar: item.userImg,
-                    profRole: item.role,
-                    profExperience: item.Experience,
-                    profAbout: item.about,
-                    profLicense: item.License,
-                    profSpecialty: item.Specialty,
-                    // userName: userData.fname + ' ' + userData.lname,
-                    // userEmail: userData.email,
-                    // userAvatar: userData.userImg,
-                    // userRole: userData.role,
-                  })
-                }>
-                <LinearGradient
-                  colors={['#f7f3fc', '#fff']}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 0}}
-                  style={{
-                    flexDirection: 'row',
-                    marginHorizontal: 15,
-                    marginVertical: 5,
-                    alignItems: 'center',
-                    borderRadius: 7,
-                    padding: 10,
-                  }}>
-                  <View
-                    style={{
-                      // flex: 1,
-                      alignItems: 'flex-start',
-                      justifyContent: 'center',
-                    }}>
-                    <ProfilePic
-                      Userimage={{
-                        uri:
-                          item.userImg ||
-                          'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
-                      }}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      alignItems: 'flex-start',
-                      justifyContent: 'center',
-                      marginHorizontal: 20,
-                    }}>
-                    <Content
-                      professionalsName={item.fname + ' ' + item.lname}
-                      professionalExperience={item.Experience}
-                      professionalSpecialty={item.Specialty}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      // flex: 1,
-                      alignItems: 'flex-end',
-                      justifyContent: 'center',
-                    }}>
-                    <Icon name="chevron-forward" size={26} color="#a076cd" />
-                  </View>
-                  {/* <Text>{Profdata ? item.fname || 'Mentlada' : 'Mentlada'}</Text>*/}
-                </LinearGradient>
-              </TouchableOpacity>
-            )}
-          />
-        </>
+        <View>
+          <Text>ddddddd</Text>
+        </View>
       ) : null}
     </SafeAreaView>
   );

@@ -6,6 +6,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 // const user = <AntDesign name="user" color="#707070" size={20} />;
 
+const verifiedUser = require('../assets/icons/verified-user.png');
+const removeUser = require('../assets/icons/remove-user.png');
 const back = require('../assets/icons/back.png');
 const bell = require('../assets/icons/bell.png');
 const bill = require('../assets/icons/bill.png');
@@ -30,6 +32,8 @@ const post = require('../assets/icons/post.png');
 const blog = require('../assets/icons/blog.png');
 
 export default {
+  verifiedUser,
+  removeUser,
   post,
   blog,
   Professional,

@@ -15,36 +15,25 @@ import {Avatar} from 'react-native-elements';
 
 const Home = ({navigation, route}) => {
   const [userData, setUserData] = useState(null);
-  const [Profdata, setProfdata] = useState(null);
+  const [professionalData, setProfessionalData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allPosts, setAllPost] = useState(null);
   const [posts, setPosts] = useState(null);
 
-  useLayoutEffect(() => {
-    const fetchPosts = firestore()
-      .collection('posts')
-      .orderBy('postTime', 'desc')
-      .onSnapshot(snapshot =>
-        setPosts(
-          snapshot.docs.map(doc => ({
-            id: doc.id,
-            userId: doc.data().userId,
-            userName: 'Mentlada Patient',
-            userImg: 'https://i.ibb.co/pv5S0nm/logo.png',
-            postTime: doc.data().postTime,
-            post: doc.data().post,
-            postImg: doc.data().postImg,
-            liked: false,
-            likes: doc.data().likes,
-            comments: doc.data().comments,
-          })),
-        ),
-      );
-    if (loading) {
-      setLoading(false);
-    }
-    return fetchPosts;
-  }, [route, navigation]);
+  const getProfessional = async () => {
+    setLoading(true);
+
+    await firestore()
+      .collection('Professional')
+      .doc(route.params.professionalId)
+      .get()
+      .then(documentSnapshot => {
+        if (documentSnapshot.exists) {
+          setProfessionalData(documentSnapshot.data());
+          setLoading(false);
+        }
+      });
+  };
 
   const featuresData = [
     {
@@ -118,8 +107,8 @@ const Home = ({navigation, route}) => {
           paddingBottom: SIZES.padding * 2,
         }}>
         <View style={{flex: 1}}>
-          <Text style={{...FONTS.h1}}>Hello!</Text>
-          <Text style={{...FONTS.body2, color: COLORS.gray}}>Dear Admin</Text>
+          <Text style={{...FONTS.h1, color: COLORS.secondary}}>Hello!</Text>
+          <Text style={{...FONTS.body2}}>Dear Admin</Text>
         </View>
 
         <View style={{alignItems: 'center', justifyContent: 'center'}}>
