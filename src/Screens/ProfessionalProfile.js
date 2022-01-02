@@ -526,28 +526,82 @@ const ProfessionalProfile = ({navigation, route}) => {
               </View>
             </ScrollView>
           </View>
-
-          <Button
-            onPress={() => {
-              navigation.navigate('EditProfessionalProfile', {
-                professionalId: route.params.professionalId,
-              });
-            }}
-            title="Edit this profile"
-            titleStyle={{...FONTS.h5}}
-            buttonStyle={{
-              backgroundColor: COLORS.primary,
-              borderColor: 'transparent',
-              borderWidth: 0,
-              borderRadius: 7,
-            }}
-            containerStyle={{
-              width: SIZES.width - 40,
-              alignSelf: 'center',
-              justifyContent: 'center',
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-around',
               marginVertical: 10,
-            }}
-          />
+              marginBottom: 20,
+            }}>
+            <LinearGradient
+              colors={[COLORS.yellow, COLORS.lightGreen]}
+              start={{x: 0.5, y: 3.0}}
+              end={{x: 0.25, y: 0}}
+              style={{
+                alignItems: 'center',
+                borderRadius: 7,
+                margin: 5,
+              }}>
+              <Button
+                onPress={() => {
+                  navigation.navigate('EditProfessionalProfile', {
+                    professionalId: route.params.professionalId,
+                  });
+                }}
+                title="Edit this profile"
+                titleStyle={{...FONTS.h6, color: COLORS.secondary}}
+                buttonStyle={{
+                  backgroundColor: 'transparent',
+                  borderColor: 'transparent',
+                  borderWidth: 0,
+                  borderRadius: 7,
+                }}
+                containerStyle={{
+                  width: SIZES.width / 3 + 35,
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                }}
+              />
+            </LinearGradient>
+            <LinearGradient
+              colors={[COLORS.primary, COLORS.emerald]}
+              start={{x: 0.5, y: 6.0}}
+              end={{x: 0.0, y: 0.25}}
+              style={{
+                alignItems: 'center',
+                borderRadius: 7,
+                margin: 5,
+                flex: 1,
+              }}>
+              {isUpdating ? (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                </View>
+              ) : (
+                <Button
+                  onPress={handleDelete}
+                  title="Delete this account"
+                  titleStyle={{...FONTS.h6, color: COLORS.primary}}
+                  buttonStyle={{
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent',
+                    borderWidth: 0,
+                  }}
+                  containerStyle={{
+                    width: SIZES.width / 3 + 35,
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    flex: 1.3,
+                  }}
+                />
+              )}
+            </LinearGradient>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

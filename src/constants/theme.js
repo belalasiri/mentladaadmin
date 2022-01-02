@@ -46,6 +46,7 @@ export const SIZES = {
   h3: 20,
   h4: 18,
   h5: 16,
+  h6: 14,
   body1: 30,
   body2: 20,
   body3: 16,
@@ -86,6 +87,11 @@ export const FONTS = {
   h5: {
     fontFamily: 'DINNextLTArabic-Medium',
     fontSize: SIZES.h5,
+    lineHeight: 22,
+  },
+  h6: {
+    fontFamily: 'DINNextLTArabic-Medium',
+    fontSize: SIZES.h6,
     lineHeight: 22,
   },
   body1: {

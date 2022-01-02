@@ -21,9 +21,11 @@ const Details = ({navigation, route}) => {
   const [Profdata, setProfdata] = useState(null);
   const [ProfVarData, setProfVarData] = useState(null);
   const [unVarProfs, setunVarProfs] = useState(null);
-  const [requests, setRequests] = useState(true);
+  const [PatientsData, setPatientsData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [isVerified, setVerified] = useState(null);
+  const [professionalData, setProfessionalData] = useState(null);
+  const [requests, setRequests] = useState(true);
   const UresData = route.params;
 
   const Heder = ({onBacePress, name, icon, iconColor}) => {
@@ -119,7 +121,7 @@ const Details = ({navigation, route}) => {
           })),
         ),
       );
-    const fetchOwnProfs = firestore()
+    const fetchVarProfs = firestore()
       .collection('Professional')
       .where('Verified', '==', 'Verified')
       .onSnapshot(snapshot =>
@@ -164,7 +166,34 @@ const Details = ({navigation, route}) => {
         ),
       );
 
-    return fetchProfs, fetchOwnProfs, fetchUnVarProfs;
+    return fetchProfs, fetchVarProfs, fetchUnVarProfs;
+  }, [navigation]);
+
+  useLayoutEffect(() => {
+    const fetchPatients = firestore()
+      .collection('users')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot =>
+        setPatientsData(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            professionalId: doc.data().professionalId,
+            fname: doc.data().fname,
+            lname: doc.data().lname,
+            email: doc.data().email,
+            about: doc.data().about,
+            Experience: doc.data().Experience,
+            License: doc.data().License,
+            Specialty: doc.data().Specialty,
+            userImg: doc.data().userImg,
+            role: doc.data().role,
+            specialization: doc.data().specialization,
+            Verified: doc.data().Verified,
+          })),
+        ),
+      );
+
+    return fetchPatients;
   }, [navigation]);
 
   const ProfilePic = ({Userimage}) => {
@@ -232,7 +261,7 @@ const Details = ({navigation, route}) => {
         paddingVertical: SIZES.padding * 2,
       }}>
       <Heder
-        name={UresData.description}
+        name={UresData.description || 'Mentlada'}
         icon={UresData.icon}
         iconColor={UresData.color}
         onBacePress={() => navigation.goBack()}
@@ -504,18 +533,90 @@ const Details = ({navigation, route}) => {
           )}
         </>
       ) : UresData.description == 'Patients' ? (
-        <View>
-          <Text>ddddddd</Text>
-        </View>
+        <>
+          <View style={{flex: 1}}>
+            <FlatList
+              data={PatientsData}
+              keyExtractor={item => item.id}
+              showsVerticalScrollIndicator={false}
+              renderItem={({id, item}) => (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('ProfessionalProfile', {
+                      professionalId: item.professionalId,
+                      fname: item.fname,
+                      lname: item.lname,
+                      profName: item.fname + ' ' + item.lname,
+                      profEmail: item.email,
+                      profAvatar: item.userImg,
+                      profRole: item.role,
+                      profExperience: item.Experience,
+                      profAbout: item.about,
+                      profLicense: item.License,
+                      profSpecialty: item.Specialty,
+                      specialization: item.specialization,
+                      professionalId: item.professionalId,
+                    })
+                  }>
+                  <LinearGradient
+                    colors={['#f7f3fc', '#fff']}
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}
+                    style={{
+                      flexDirection: 'row',
+                      marginHorizontal: 15,
+                      marginVertical: 5,
+                      alignItems: 'center',
+                      borderRadius: 7,
+                      padding: 10,
+                    }}>
+                    <View
+                      style={{
+                        // flex: 1,
+                        alignItems: 'flex-start',
+                        justifyContent: 'center',
+                      }}>
+                      <ProfilePic
+                        Userimage={{
+                          uri:
+                            item.userImg ||
+                            'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
+                        }}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: 'flex-start',
+                        justifyContent: 'center',
+                        marginHorizontal: 20,
+                      }}>
+                      <Content
+                        professionalsName={item.fname + ' ' + item.lname}
+                        professionalExperience={item.Experience}
+                        professionalSpecialty={item.Specialty}
+                        isVerified={item.Verified}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        // flex: 1,
+                        alignItems: 'flex-end',
+                        justifyContent: 'center',
+                      }}>
+                      <Icon name="chevron-forward" size={26} color="#a076cd" />
+                    </View>
+
+                    {/* <Text>{Profdata ? item.fname || 'Mentlada' : 'Mentlada'}</Text>*/}
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </>
       ) : null}
     </SafeAreaView>
   );
 };
 
 export default Details;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
