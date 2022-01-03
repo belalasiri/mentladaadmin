@@ -12,6 +12,11 @@ import SignUp from '../Screens/SignUp';
 import Details from '../Screens/Details';
 import ProfessionalProfile from '../Screens/ProfessionalProfile';
 import EditProfessionalProfile from '../Screens/subScreens/EditProfessionalProfile';
+import PatientsProfile from '../Screens/PatientsProfile';
+import EditPatientsProfile from '../Screens/subScreens/EditPatientsProfile';
+import FullPost from '../Screens/subScreens/FullPost';
+import BlogContent from '../Screens/subScreens/BlogContent';
+import categoryDetails from '../Screens/subScreens/categoryDetails';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -78,6 +83,14 @@ export default function AppStack() {
           name="EditProfessionalProfile"
           component={EditProfessionalProfile}
         />
+        <Stack.Screen name="PatientsProfile" component={PatientsProfile} />
+        <Stack.Screen
+          name="EditPatientsProfile"
+          component={EditPatientsProfile}
+        />
+        <Stack.Screen name="FullPost" component={FullPost} />
+        <Stack.Screen name="BlogContent" component={BlogContent} />
+        <Stack.Screen name="categoryDetails" component={categoryDetails} />
       </Stack.Navigator>
     </SafeAreaProvider>
   );

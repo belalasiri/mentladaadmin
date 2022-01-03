@@ -47,12 +47,19 @@ export const SIZES = {
   h4: 18,
   h5: 16,
   h6: 14,
+  h7: 12,
+  h8: 10,
+  h9: 8,
+  h13: 13,
   body1: 30,
   body2: 20,
   body3: 16,
   body4: 14,
   body5: 12,
-
+  body6: 10,
+  body7: 8,
+  body8: 6,
+  Text13: 13,
   // app dimensions
   width,
   height,
@@ -72,7 +79,7 @@ export const FONTS = {
   h2: {
     fontFamily: 'DINNextLTArabic-Medium',
     fontSize: SIZES.h2,
-    lineHeight: 30,
+    lineHeight: 40,
   },
   h3: {
     fontFamily: 'DINNextLTArabic-Medium',
@@ -84,6 +91,11 @@ export const FONTS = {
     fontSize: SIZES.h4,
     lineHeight: 22,
   },
+  h4_2: {
+    fontFamily: 'DINNextLTArabic-Medium',
+    fontSize: SIZES.h4_2,
+    lineHeight: 22,
+  },
   h5: {
     fontFamily: 'DINNextLTArabic-Medium',
     fontSize: SIZES.h5,
@@ -93,6 +105,16 @@ export const FONTS = {
     fontFamily: 'DINNextLTArabic-Medium',
     fontSize: SIZES.h6,
     lineHeight: 22,
+  },
+  h7: {
+    fontFamily: 'DINNextLTArabic-Medium',
+    fontSize: SIZES.h7,
+    lineHeight: 22,
+  },
+  h13: {
+    fontFamily: 'DINNextLTArabic-Medium',
+    fontSize: SIZES.h13,
+    lineHeight: 20,
   },
   body1: {
     fontFamily: 'DINNextLTArabic-Regular',
@@ -118,6 +140,26 @@ export const FONTS = {
     fontFamily: 'DINNextLTArabic-Regular',
     fontSize: SIZES.body5,
     lineHeight: 22,
+  },
+  body6: {
+    fontFamily: 'DINNextLTArabic-Regular',
+    fontSize: SIZES.body5,
+    lineHeight: 18,
+  },
+  body7: {
+    fontFamily: 'DINNextLTArabic-Regular',
+    fontSize: SIZES.body7,
+    lineHeight: 22,
+  },
+  body13: {
+    fontFamily: 'DINNextLTArabic-Regular',
+    fontSize: SIZES.Text13,
+    lineHeight: 20,
+  },
+  BodyContent: {
+    fontFamily: 'DINNextLTArabic-Regular',
+    fontSize: SIZES.body4,
+    lineHeight: 27,
   },
 };
 

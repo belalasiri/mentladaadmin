@@ -30,8 +30,24 @@ const patient = require('../assets/icons/patient.png');
 const Professional = require('../assets/icons/Professional.png');
 const post = require('../assets/icons/post.png');
 const blog = require('../assets/icons/blog.png');
+const calendar = require('../assets/icons/calendar.png');
+const location = require('../assets/icons/location.png');
+const postEmpty = require('../assets/icons/postEmpty.png');
+const comment = require('../assets/icons/comment.png');
+const commentIcon = require('../assets/icons/commentIcon.png');
+const heart = require('../assets/icons/heart.png');
+const heartFill = require('../assets/icons/heartFill.png');
+const Delete = require('../assets/icons/bin.png');
 
 export default {
+  Delete,
+  heartFill,
+  heart,
+  commentIcon,
+  comment,
+  postEmpty,
+  calendar,
+  location,
   verifiedUser,
   removeUser,
   post,

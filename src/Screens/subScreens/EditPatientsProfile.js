@@ -23,37 +23,34 @@ import storage from '@react-native-firebase/storage';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 import ImagePicker from 'react-native-image-crop-picker';
 import {COLORS, FONTS, SIZES} from '../../constants';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const EditProfessionalProfile = ({navigation, route}) => {
+const EditPatientsProfile = ({navigation, route}) => {
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [Profdata, setProfdata] = useState(null);
+  const [patientData, setPatientData] = useState(null);
 
-  const getProfessional = async () => {
+  const getPatient = async () => {
     setLoading(true);
 
     await firestore()
-      .collection('Professional')
-      .doc(route.params.professionalId)
+      .collection('users')
+      .doc(route.params.userId)
       .get()
       .then(documentSnapshot => {
         if (documentSnapshot.exists) {
-          // console.log('User Data', documentSnapshot.data());
-          setProfdata(documentSnapshot.data());
+          //   console.log('User Data', documentSnapshot.data());
+          setPatientData(documentSnapshot.data());
           setLoading(false);
         }
       });
   };
-
-  useEffect(() => {
-    getProfessional();
-  }, []);
 
   const choosePhotoFromLibrary = () => {
     ImagePicker.openPicker({
@@ -73,17 +70,6 @@ const EditProfessionalProfile = ({navigation, route}) => {
           return false;
         }
       });
-  };
-
-  const onCancel = () => {
-    navigation.goBack();
-    ToastAndroid.showWithGravityAndOffset(
-      'Edit professional canceled',
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM,
-      0,
-      200,
-    );
   };
 
   const uploadImage = async () => {
@@ -130,27 +116,25 @@ const EditProfessionalProfile = ({navigation, route}) => {
   const handleUpdate = async () => {
     setUploading(true);
     let imgUrl = await uploadImage();
-    let about = Profdata.about;
+    let about = patientData.about;
 
-    if (imgUrl == null && Profdata.userImg) {
-      imgUrl = Profdata.userImg;
+    if (imgUrl == null && patientData.userImg) {
+      imgUrl = patientData.userImg;
     }
     if (about == null) {
-      about = Profdata.about;
+      about = patientData.about;
     }
-
     firestore()
-      .collection('Professional')
-      .doc(Profdata.professionalId)
+      .collection('users')
+      .doc(patientData.userId)
       .update({
         userImg: imgUrl,
-        fname: Profdata.fname,
-        lname: Profdata.lname,
-        about: Profdata.about,
-        specialization: Profdata.specialization,
-        License: Profdata.License,
-        Experience: Profdata.Experience,
-        Specialty: Profdata.Specialty,
+        fname: patientData.fname,
+        lname: patientData.lname,
+        about: patientData.about,
+        phone: patientData.phone,
+        country: patientData.country,
+        city: patientData.city,
       })
       .then(() => {
         setUploading(false);
@@ -163,46 +147,25 @@ const EditProfessionalProfile = ({navigation, route}) => {
       });
   };
 
-  const onDelete = () => {
-    setUploading(true);
-    firebase
-      .firestore()
-      .collection('Professional')
-      .doc(Profdata.professionalId)
-      .delete()
-      .then(() => {
-        navigation.navigate('Details');
-        setUploading(false);
-        console.log('This profissional is no longer active!');
-        Alert.alert('Successfully!', 'This profissional is no longer active');
-      });
-  };
-
-  const handleDelete = profID => {
-    Alert.alert(
-      'Delete profissional',
-      'Are you sure you want to delete this profissional from Mentlada?',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed!'),
-          style: 'cancel',
-        },
-        {
-          text: 'Confirm',
-          onPress: () => onDelete(profID),
-        },
-      ],
-      {cancelable: false},
+  const onCancel = () => {
+    navigation.goBack();
+    ToastAndroid.showWithGravityAndOffset(
+      'Edit professional canceled',
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+      0,
+      200,
     );
   };
 
+  useEffect(() => {
+    getPatient();
+  }, []);
+
   return (
     <KeyboardAvoidingView style={styles.container} keyboardVerticalOffset={80}>
-      {/* content */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{padding: SIZES.padding * 2}}>
-          {/* Header */}
           <View style={styles.headerContainer}>
             <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
               <Text style={styles.cancelText}>Cancel</Text>
@@ -213,7 +176,7 @@ const EditProfessionalProfile = ({navigation, route}) => {
                 justifyContent: 'center',
                 paddingRight: SIZES.padding,
               }}
-              onPress={handleDelete}>
+              onPress={onCancel}>
               {uploading ? (
                 <View style={{alignItems: 'center', justifyContent: 'center'}}>
                   <ActivityIndicator size="small" color={COLORS.white} />
@@ -244,8 +207,8 @@ const EditProfessionalProfile = ({navigation, route}) => {
                       source={{
                         uri: image
                           ? image
-                          : Profdata
-                          ? Profdata.userImg ||
+                          : patientData
+                          ? patientData.userImg ||
                             'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg'
                           : 'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
                       }}
@@ -284,106 +247,112 @@ const EditProfessionalProfile = ({navigation, route}) => {
                   alignItems: 'center',
                 }}>
                 <Text style={{...FONTS.h4, color: COLORS.secondary}}>
-                  {Profdata ? Profdata.fname : ''}{' '}
-                  {Profdata ? Profdata.lname : ''}
+                  {patientData ? patientData.fname : ''}{' '}
+                  {patientData ? patientData.lname : ''}
                 </Text>
                 <Text style={{...FONTS.body4, color: COLORS.primary}}>
-                  {Profdata ? Profdata.email : ''}
+                  {patientData ? patientData.email : ''}
                 </Text>
               </View>
 
-              {/* f.name, lname, bio, phone, contry, city */}
-              <View style={styles.action}>
-                <AntDesign name="user" color="#707070" size={20} />
-                <TextInput
-                  placeholder="First Name"
-                  placeholderTextColor="#707070"
-                  autoCorrect={false}
-                  value={Profdata ? Profdata.fname : ''}
-                  onChangeText={txt => setProfdata({...Profdata, fname: txt})}
-                  style={styles.textInput}
-                />
-              </View>
-
-              <View style={styles.action}>
-                <MaterialCommunityIcons
-                  name="certificate-outline"
-                  color="#707070"
-                  size={23}
-                />
-                <TextInput
-                  placeholder="Your Specialization"
-                  placeholderTextColor="#707070"
-                  value={Profdata ? Profdata.specialization : ''}
-                  onChangeText={txt =>
-                    setProfdata({...Profdata, specialization: txt})
-                  }
-                  autoCorrect={false}
-                  style={styles.textInput}
-                />
-              </View>
-
-              <View style={styles.action}>
-                <AntDesign name="idcard" color="#707070" size={20} />
-                <TextInput
-                  placeholder="License No."
-                  placeholderTextColor="#707070"
-                  keyboardType="number-pad"
-                  value={Profdata ? Profdata.License : ''}
-                  onChangeText={txt => setProfdata({...Profdata, License: txt})}
-                  autoCorrect={false}
-                  style={styles.textInput}
-                />
-              </View>
-
-              <View style={styles.action}>
-                <AntDesign name="Trophy" color="#707070" size={20} />
-                <TextInput
-                  placeholder="Years of experience"
-                  placeholderTextColor="#707070"
-                  value={Profdata ? Profdata.Experience : ''}
-                  onChangeText={txt =>
-                    setProfdata({...Profdata, Experience: txt})
-                  }
-                  autoCorrect={false}
-                  style={styles.textInput}
-                />
-              </View>
-
-              <View style={styles.action}>
-                <AntDesign name="Safety" color="#707070" size={20} />
-                <TextInput
-                  placeholder="Your Specialty"
-                  placeholderTextColor="#707070"
-                  value={Profdata ? Profdata.Specialty : ''}
-                  onChangeText={txt =>
-                    setProfdata({...Profdata, Specialty: txt})
-                  }
-                  autoCorrect={false}
-                  style={styles.textInput}
-                />
-              </View>
-
-              <View style={styles.action}>
-                <View style={{paddingTop: 15, alignSelf: 'flex-start'}}>
-                  <AntDesign name="infocirlceo" color="#707070" size={20} />
+              <View style={{flex: 1, width: SIZES.width - 40}}>
+                <View style={styles.action}>
+                  <AntDesign name="user" color="#707070" size={20} />
+                  <TextInput
+                    placeholder="First Name"
+                    placeholderTextColor="#707070"
+                    autoCorrect={false}
+                    value={patientData ? patientData.fname : ''}
+                    onChangeText={txt =>
+                      setPatientData({...patientData, fname: txt})
+                    }
+                    style={styles.textInput}
+                  />
                 </View>
-                <TextInput
-                  multiline
-                  placeholder="Bio"
-                  placeholderTextColor="#707070"
-                  value={Profdata ? Profdata.about : ''}
-                  onChangeText={txt => setProfdata({...Profdata, about: txt})}
-                  autoCorrect={false}
-                  style={styles.textInput}
-                />
+
+                <View style={styles.action}>
+                  <AntDesign name="user" color="#707070" size={20} />
+                  <TextInput
+                    placeholder="First Name"
+                    placeholderTextColor="#707070"
+                    autoCorrect={false}
+                    value={patientData ? patientData.lname : ''}
+                    onChangeText={txt =>
+                      setPatientData({...patientData, lname: txt})
+                    }
+                    style={styles.textInput}
+                  />
+                </View>
+
+                <View style={styles.action}>
+                  <Feather name="phone" color="#333333" size={19} />
+                  <TextInput
+                    placeholder="Phone number"
+                    placeholderTextColor="#707070"
+                    value={patientData ? patientData.phone : ''}
+                    onChangeText={txt =>
+                      setPatientData({...patientData, phone: txt})
+                    }
+                    autoCorrect={false}
+                    style={styles.textInput}
+                  />
+                </View>
+
+                <View style={styles.action}>
+                  <Icon name="globe-outline" color="#333333" size={20} />
+                  <TextInput
+                    placeholder="Country"
+                    placeholderTextColor="#666666"
+                    autoCorrect={false}
+                    value={patientData ? patientData.country : ''}
+                    onChangeText={txt =>
+                      setUserData({...patientData, country: txt})
+                    }
+                    style={styles.textInput}
+                  />
+                </View>
+
+                <View style={styles.action}>
+                  <MaterialCommunityIcons
+                    name="map-marker-outline"
+                    color="#333333"
+                    size={20}
+                  />
+                  <TextInput
+                    placeholder="City"
+                    placeholderTextColor="#666666"
+                    autoCorrect={false}
+                    value={patientData ? patientData.city : ''}
+                    onChangeText={txt =>
+                      setUserData({...patientData, city: txt})
+                    }
+                    style={styles.textInput}
+                  />
+                </View>
+
+                <View style={styles.action}>
+                  <View style={{paddingTop: 15, alignSelf: 'flex-start'}}>
+                    <AntDesign name="infocirlceo" color="#707070" size={20} />
+                  </View>
+                  <TextInput
+                    multiline
+                    placeholder="Bio"
+                    placeholderTextColor="#707070"
+                    value={patientData ? patientData.about : ''}
+                    onChangeText={txt =>
+                      setPatientData({...patientData, about: txt})
+                    }
+                    autoCorrect={false}
+                    style={styles.textInput}
+                  />
+                </View>
               </View>
             </View>
           </View>
-
           <View
             style={{
               paddingTop: SIZES.padding,
+              width: SIZES.width - 40,
             }}>
             <LinearGradient
               colors={[COLORS.primary, COLORS.lightGreen]}
@@ -420,7 +389,7 @@ const EditProfessionalProfile = ({navigation, route}) => {
   );
 };
 
-export default EditProfessionalProfile;
+export default EditPatientsProfile;
 
 const styles = StyleSheet.create({
   container: {
