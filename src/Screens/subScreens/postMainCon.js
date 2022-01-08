@@ -10,6 +10,7 @@ import {COLORS, FONTS, images} from '../../constants';
 import ProgressiveImage from '../../config/ProgressiveImage';
 import Feather from 'react-native-vector-icons/Feather';
 import Footer from './post/MainFooter';
+import {BallIndicator} from 'react-native-indicators';
 
 const postMainCon = ({
   Name,
@@ -27,6 +28,7 @@ const postMainCon = ({
   postId,
   CommentsLength,
   likeList,
+  deleted,
   onCommentPress,
 }) => {
   return (
@@ -41,7 +43,18 @@ const postMainCon = ({
           </TouchableOpacity>
 
           <TouchableOpacity onPress={onDelete}>
-            <Feather name={IconName} size={25} color={COLORS.primary} />
+            {deleted ? (
+              <View
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginLeft: 8,
+                }}>
+                <BallIndicator color={COLORS.secondary} size={10} />
+              </View>
+            ) : (
+              <Feather name={IconName} size={25} color={COLORS.primary} />
+            )}
           </TouchableOpacity>
         </View>
 

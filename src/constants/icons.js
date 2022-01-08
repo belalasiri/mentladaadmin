@@ -38,8 +38,40 @@ const commentIcon = require('../assets/icons/commentIcon.png');
 const heart = require('../assets/icons/heart.png');
 const heartFill = require('../assets/icons/heartFill.png');
 const Delete = require('../assets/icons/bin.png');
+const patient1 = require('../assets/icons/patient1.png');
+const prof1 = require('../assets/icons/prof1.png');
+const prof2 = require('../assets/icons/prof2.png');
+const blog1 = require('../assets/icons/blog1.png');
+const Data_1 = require('../assets/icons/1.png');
+const Data_2 = require('../assets/icons/2.png');
+const Data_3 = require('../assets/icons/3.png');
+const Data_4 = require('../assets/icons/4.png');
+const Data_5 = require('../assets/icons/5.png');
+const Data_6 = require('../assets/icons/consultation.png');
+const Data_7 = require('../assets/icons/personality.png');
+const Data_8 = require('../assets/icons/copywriting.png');
+const Data_9 = require('../assets/icons/add.png');
+const Chat = require('../assets/icons/chat.png');
+const certificate = require('../assets/icons/certificate.png');
+const time = require('../assets/icons/time.png');
 
 export default {
+  time,
+  certificate,
+  Chat,
+  Data_1,
+  Data_2,
+  Data_3,
+  Data_4,
+  Data_5,
+  Data_6,
+  Data_7,
+  Data_8,
+  Data_9,
+  patient1,
+  prof1,
+  prof2,
+  blog1,
   Delete,
   heartFill,
   heart,

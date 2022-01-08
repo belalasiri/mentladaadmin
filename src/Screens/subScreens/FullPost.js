@@ -222,7 +222,7 @@ const FullPost = ({navigation, route}) => {
             </View>
           )}
 
-          <View
+          {/* <View
             style={{
               padding: SIZES.padding * 2 - 5,
               paddingVertical: SIZES.padding * 2 - 5,
@@ -257,36 +257,6 @@ const FullPost = ({navigation, route}) => {
                 )}
               </TouchableOpacity>
             </LinearGradient>
-          </View>
-
-          {/* <View style={styles.footer}>
-            <TextInput
-              value={input}
-              multiline
-              onChangeText={text => setInput(text)}
-              placeholder="Write a comment..."
-              style={styles.textInput}
-            />
-            <TouchableOpacity activeOpacity={0.5} disabled={!input}>
-              {commenting ? (
-                <View
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <BallIndicator color={COLORS.secondary} size={15} />
-                </View>
-              ) : (
-                <Image
-                  source={icons.send}
-                  style={{
-                    width: 25,
-                    height: 25,
-                    tintColor: !input ? '#d9c1f2' : COLORS.primary,
-                  }}
-                />
-              )}
-            </TouchableOpacity>
           </View> */}
         </View>
       </ScrollView>

@@ -22,11 +22,14 @@ import TwoSwich from '../components/TwoSwich';
 import CustomPost from './subScreens/CustomPost';
 import BlogScreen from './Blogs';
 import BlogCustom from './subScreens/BlogCustom';
+import {ListItem} from 'react-native-elements';
+import PlansCustom from './subScreens/PlansCustom';
 const Details = ({navigation, route}) => {
   const [Profdata, setProfdata] = useState(null);
   const [ProfVarData, setProfVarData] = useState(null);
   const [unVarProfs, setunVarProfs] = useState(null);
   const [PatientsData, setPatientsData] = useState(null);
+  const [plansData, setPlansData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isVerified, setVerified] = useState(null);
   const [professionalData, setProfessionalData] = useState(null);
@@ -176,10 +179,25 @@ const Details = ({navigation, route}) => {
         ),
       );
 
-    return fetchProfs, fetchVarProfs, fetchUnVarProfs;
-  }, [navigation]);
-
-  useLayoutEffect(() => {
+    const fetcBlogs = firestore()
+      .collection('Blogs')
+      .orderBy('blogTime', 'desc')
+      .onSnapshot(snapshot =>
+        setBlogs(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data(),
+            professionalId: doc.data().professionalId,
+            professionalAvatar: doc.data().professionalAvatar,
+            professionalName: doc.data().professionalName,
+            Blog: doc.data().Blog,
+            Content: doc.data().Content,
+            blogtImg: doc.data().blogtImg,
+            Category: doc.data().Category,
+            blogTime: doc.data().blogTime,
+          })),
+        ),
+      );
     const fetchPatients = firestore()
       .collection('users')
       .orderBy('createdAt', 'desc')
@@ -202,8 +220,50 @@ const Details = ({navigation, route}) => {
           })),
         ),
       );
+    // const FETCH_PLANS = firestore()
+    //   .collection('packages')
+    //   .orderBy('subscribedAt', 'desc')
+    //   .onSnapshot(snapshot =>
+    //     setPlansData(
+    //       snapshot.docs.map(doc => ({
+    //         id: doc.id,
+    //         data: doc.data(),
+    //         CVC: doc.data().CVC,
+    //         subscribedAt: doc.data().subscribedAt,
+    //         CardExpiryDate: doc.data().CardExpiryDate,
+    //         subscribedAt: doc.data().subscribedAt,
+    //         NameOnCard: doc.data().NameOnCard,
+    //         Price: doc.data().Price,
+    //         UserID: doc.data().UserID,
+    //         planCategory: doc.data().planCategory,
+    //         seconds: doc.data().seconds,
+    //       })),
+    //     ),
+    //   );
+    const FETCH_PLANS = firestore()
+      .collection('Plans')
+      // .limit(2)
+      .orderBy('lastUpdated', 'desc')
+      .onSnapshot(snapshot =>
+        setPlansData(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data(),
+            planPrice: doc.data().planPrice,
+            planType: doc.data().planType,
+            planFeatures: doc.data().planFeatures,
+          })),
+        ),
+      );
 
-    return fetchPatients;
+    return (
+      fetchProfs,
+      fetchVarProfs,
+      fetchUnVarProfs,
+      fetcBlogs,
+      fetchPatients,
+      FETCH_PLANS
+    );
   }, [navigation]);
 
   const ProfilePic = ({Userimage}) => {
@@ -252,14 +312,20 @@ const Details = ({navigation, route}) => {
             </View>
           ) : null}
         </View>
+        <ListItem.Subtitle
+          style={{...FONTS.body4, color: COLORS.secondary, paddingVertical: 5}}
+          numberOfLines={1}
+          ellipsizeMode="tail">
+          {/* {lastMessages?.[0]?.displayName}:
+          {lastMessages?.[0]?.message || 'Need an approval first!'} */}
+          {professionalSpecialty}
+        </ListItem.Subtitle>
         <Text
           style={{
             ...FONTS.body4,
             color: COLORS.secondary,
             paddingVertical: 5,
-          }}>
-          {professionalSpecialty}
-        </Text>
+          }}></Text>
       </View>
     );
   };
@@ -300,29 +366,6 @@ const Details = ({navigation, route}) => {
       console.log(e);
     }
   };
-  useLayoutEffect(() => {
-    const fetcBlogs = firestore()
-      .collection('Blogs')
-      .orderBy('blogTime', 'desc')
-      .onSnapshot(snapshot =>
-        setBlogs(
-          snapshot.docs.map(doc => ({
-            id: doc.id,
-            data: doc.data(),
-            professionalId: doc.data().professionalId,
-            professionalAvatar: doc.data().professionalAvatar,
-            professionalName: doc.data().professionalName,
-            Blog: doc.data().Blog,
-            Content: doc.data().Content,
-            blogtImg: doc.data().blogtImg,
-            Category: doc.data().Category,
-            blogTime: doc.data().blogTime,
-          })),
-        ),
-      );
-
-    return fetcBlogs;
-  }, [navigation]);
 
   const deletePost = postId => {
     console.log('Current Post Id: ', postId);
@@ -382,10 +425,6 @@ const Details = ({navigation, route}) => {
       .doc(postId)
       .delete()
       .then(() => {
-        // Alert.alert(
-        //   'Post deleted!',
-        //   'Your post has been deleted successfully!',
-        // );
         setDeleting(false);
         ToastAndroid.showWithGravityAndOffset(
           'Your post has been deleted successfully!',
@@ -401,7 +440,6 @@ const Details = ({navigation, route}) => {
 
   useEffect(() => {
     fetchPosts();
-    setDeleted(false);
   }, [deleted]);
 
   return (
@@ -716,7 +754,7 @@ const Details = ({navigation, route}) => {
                       flexDirection: 'row',
                       marginHorizontal: 15,
                       marginVertical: 5,
-                      alignItems: 'center',
+                      // alignItems: 'center',
                       borderRadius: 7,
                       padding: 10,
                     }}>
@@ -775,7 +813,7 @@ const Details = ({navigation, route}) => {
                 <CustomPost
                   key={item.id}
                   item={item}
-                  // handleDeletePost={handleDeletePost}
+                  handleDeletePost={handleDelete}
                   onContainerPress={() =>
                     navigation.navigate('FullPost', {
                       userId: item.userId,
@@ -817,6 +855,64 @@ const Details = ({navigation, route}) => {
               />
             )}
           />
+        </>
+      ) : UresData.description == 'Plans' ? (
+        <>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginHorizontal: 20,
+              marginBottom: 20,
+              alignItems: 'center',
+              paddingTop: 10,
+            }}>
+            <Text
+              style={{
+                color: COLORS.secondary,
+                ...FONTS.h4,
+              }}>
+              All Mentlada plans
+            </Text>
+          </View>
+          <FlatList
+            data={plansData}
+            keyExtractor={item => item.id}
+            showsVerticalScrollIndicator={false}
+            renderItem={({id, item}) => (
+              <PlansCustom
+                item={item}
+                handleNavigation={() =>
+                  navigation.navigate('EditPlan', {id: item.id})
+                }
+              />
+            )}
+          />
+
+          <View
+            style={{
+              paddingTop: SIZES.padding,
+              paddingHorizontal: SIZES.padding * 2,
+            }}>
+            <LinearGradient
+              colors={[COLORS.lightpurple, COLORS.lightGreen]}
+              start={{x: 0, y: 1}}
+              end={{x: 0, y: 0}}
+              style={{
+                borderRadius: 7,
+                padding: 10,
+              }}>
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onPress={() => navigation.navigate('AddPlan')}>
+                <Text style={{...FONTS.h5}}>Add plan</Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          </View>
         </>
       ) : null}
     </SafeAreaView>

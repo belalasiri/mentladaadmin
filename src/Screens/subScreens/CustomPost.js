@@ -62,10 +62,6 @@ const CustomPost = ({
           })),
         ),
       );
-    return getComments;
-  }, []);
-
-  useLayoutEffect(() => {
     const getLikes = firestore()
       .collection('posts')
       .doc(item.id)
@@ -82,7 +78,7 @@ const CustomPost = ({
           })),
         ),
       );
-    return getLikes;
+    return getComments, getLikes;
   }, []);
 
   const handleDeletePost = () => {
@@ -164,7 +160,7 @@ const CustomPost = ({
         Name={UserName}
         postTime={postTime}
         // IconName="delete"
-        // onDelete={handleDeletePost}
+        onDelete={handleDeletePost}
         PostContent={PostContent}
         conPostImage={item.postImg}
         postImage={{uri: item.postImg}}

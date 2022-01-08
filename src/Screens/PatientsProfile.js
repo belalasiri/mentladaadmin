@@ -37,6 +37,8 @@ const PatientsProfile = ({route, navigation}) => {
   const [isVerified, setVerified] = useState(null);
   const [isUpdating, setUpdating] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [session, setSession] = useState([]);
+  const [packageData, setPackageData] = useState(0);
 
   const getPatient = async () => {
     setLoading(true);
@@ -91,6 +93,22 @@ const PatientsProfile = ({route, navigation}) => {
     }
   };
 
+  useLayoutEffect(() => {
+    firestore()
+      .collection('packages')
+      .doc(route.params.patientId)
+      .get()
+      .then(documentSnapshot => {
+        if (documentSnapshot.exists) {
+          setPackageData(documentSnapshot.data().seconds);
+          console.log(packageData);
+        } else return 0;
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }, []);
+
   const Heder = ({onBacePress, name, onRemoveUser, icon, iconColor}) => {
     return (
       <View
@@ -143,24 +161,14 @@ const PatientsProfile = ({route, navigation}) => {
     );
   };
 
-  const Divider = (
-    <View
-      style={{
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.lightpurple,
-        width: '100%',
-        alignSelf: 'center',
-        marginTop: 15,
-      }}
-    />
-  );
-
   useEffect(() => {
     getPatient();
     fetchPosts();
   }, [patientData, posts]);
 
-  let Time = moment(route.params.createdAt.toDate()).fromNow();
+  const formatted = moment
+    .utc(packageData * 1000)
+    .format('DD [d,]HH [h,]mm [m]');
 
   return (
     <SafeAreaView
@@ -314,7 +322,20 @@ const PatientsProfile = ({route, navigation}) => {
               )}
             </LinearGradient>
           </View>
-
+          <View style={styles.userInfoItem}>
+            {packageData ? (
+              <Text
+                style={{
+                  ...FONTS.h5,
+                  color: COLORS.secondary,
+                  marginBottom: 5,
+                }}>
+                {formatted}
+              </Text>
+            ) : (
+              <Text style={styles.userInfoTitle}>No plan</Text>
+            )}
+          </View>
           <View style={{flexDirection: 'row', paddingTop: SIZES.padding}}>
             <LinearGradient
               colors={[COLORS.lightpurple, COLORS.lightyellow]}
@@ -329,7 +350,7 @@ const PatientsProfile = ({route, navigation}) => {
               }}>
               <View style={[styles.container]}>
                 <Icon name="star" size={20} color={COLORS.yellow} />
-                <Text style={{...FONTS.h5}}>4.98</Text>
+                <Text style={{...FONTS.h5}}>222</Text>
                 <Text style={{...FONTS.body5}}>Reviews</Text>
               </View>
             </LinearGradient>
@@ -512,7 +533,7 @@ const PatientsProfile = ({route, navigation}) => {
                 <CustomPost
                   key={item.id}
                   item={item}
-                  onDelete={handleDelete}
+                  onDelete={() => onDelete(item)}
                   onContainerPress={() =>
                     navigation.navigate('FullPost', {
                       userId: item.userId,

@@ -6,8 +6,10 @@ const DEMENTIA = require('../assets/images/DEMENTIA.png');
 const INSOMNIA = require('../assets/images/INSOMNIA.png');
 const ANXIETY = require('../assets/images/ANXIETY.png');
 const SCHIZOPHRENIA = require('../assets/images/SCHIZOPHRENIA.png');
+const banner = require('../assets/images/focus.png');
 
 export default {
+  banner,
   Default,
   General,
   Biolar_Disorder,

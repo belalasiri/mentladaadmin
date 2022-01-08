@@ -10,23 +10,37 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
+  ImageBackground,
+  Modal,
 } from 'react-native';
 
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import {COLORS, FONTS, SIZES, icons} from '../constants';
+import ProfessionalInfo from '../components/ProfessionalInfo';
 
 //Libraries
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Avatar, Button, ListItem} from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
-import ProfessionalInfo from '../components/ProfessionalInfo';
+import {
+  BallIndicator,
+  BarIndicator,
+  DotIndicator,
+  MaterialIndicator,
+  PacmanIndicator,
+  PulseIndicator,
+  SkypeIndicator,
+  UIActivityIndicator,
+  WaveIndicator,
+} from 'react-native-indicators';
 
 const ProfessionalProfile = ({navigation, route}) => {
-  const [profData, setProfData] = useState(null);
+  const [profData, setProfData] = useState([]);
   const [profPationts, setprofPationts] = useState();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isVerified, setVerified] = useState(null);
   const [isUpdating, setUpdating] = useState(false);
+  const [dialog, setDialog] = useState(false);
 
   const getProfessional = async () => {
     setLoading(true);
@@ -67,7 +81,7 @@ const ProfessionalProfile = ({navigation, route}) => {
   useEffect(() => {
     checkApproval();
     getProfessional();
-  }, [profData, isVerified]);
+  }, [isVerified]);
 
   useLayoutEffect(() => {
     const fetchPosts = firestore()
@@ -240,23 +254,39 @@ const ProfessionalProfile = ({navigation, route}) => {
 
         <View style={{paddingHorizontal: 15}}>
           <View style={styles.Hedercontainer}>
-            <Pressable onPress={() => {}}>
-              <Avatar
-                size={80}
-                rounded
-                source={{
-                  uri: profData
-                    ? profData.userImg ||
-                      'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg'
-                    : 'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
-                }}
-                containerStyle={{backgroundColor: COLORS.primary}}>
-                <Avatar.Accessory
-                  size={25}
-                  color={COLORS.white}
-                  style={{backgroundColor: COLORS.primary}}
-                />
-              </Avatar>
+            <Pressable
+              onPress={() => {}}
+              style={{flex: 1, flexDirection: 'row'}}>
+              {loading ? (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: COLORS.lightpurple,
+                    borderRadius: 70,
+                    width: 80,
+                    height: 80,
+                  }}>
+                  <BallIndicator color={COLORS.secondary} size={20} />
+                </View>
+              ) : (
+                <Avatar
+                  size={80}
+                  rounded
+                  source={{
+                    uri: profData
+                      ? profData.userImg ||
+                        'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg'
+                      : 'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
+                  }}
+                  containerStyle={{backgroundColor: COLORS.primary}}>
+                  <Avatar.Accessory
+                    size={25}
+                    color={COLORS.white}
+                    style={{backgroundColor: COLORS.primary}}
+                  />
+                </Avatar>
+              )}
             </Pressable>
             {/* Profile name and Specialty */}
             <View style={{alignItems: 'center'}}>
@@ -495,6 +525,110 @@ const ProfessionalProfile = ({navigation, route}) => {
               </Text>
             </View>
           </LinearGradient>
+
+          {profData.LicenseCertificate ? (
+            <View style={{paddingTop: 15}}>
+              <Text
+                style={{
+                  ...FONTS.h4,
+                  textAlign: 'left',
+                  color: COLORS.secondary,
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                }}>
+                Licensed professional counselor certification
+              </Text>
+              <Pressable onPress={() => setDialog(true)}>
+                <LinearGradient
+                  colors={[COLORS.lightpurple, COLORS.lightGreen]}
+                  start={{x: 0, y: 1}}
+                  end={{x: 0, y: 0}}
+                  style={{
+                    marginVertical: 5,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+
+                    borderRadius: 7,
+                    marginTop: 15,
+                    padding: 10,
+                  }}>
+                  <ImageBackground
+                    source={{
+                      uri:
+                        profData.LicenseCertificate ||
+                        'https://i.ibb.co/YjC43xX/uploading.jpg',
+                    }}
+                    style={{
+                      width: 350,
+                      height: 500,
+                    }}
+                    blurRadius={4}
+                    imageStyle={{
+                      borderRadius: 7,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          ...FONTS.h4_2,
+                          textAlign: 'center',
+                          color: COLORS.secondary,
+                        }}>
+                        Tap to view the certificate
+                      </Text>
+                    </View>
+                  </ImageBackground>
+                </LinearGradient>
+              </Pressable>
+            </View>
+          ) : (
+            <View style={{paddingTop: 15}}>
+              <Text
+                style={{
+                  ...FONTS.h4,
+                  textAlign: 'left',
+                  color: COLORS.secondary,
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                }}>
+                Licensed professional counselor certification
+              </Text>
+
+              <LinearGradient
+                colors={[COLORS.lightpurple, COLORS.lightGreen]}
+                start={{x: 0, y: 1}}
+                end={{x: 0, y: 0}}
+                style={{
+                  marginVertical: 5,
+                  alignItems: 'center',
+                  borderRadius: 7,
+                  marginTop: 15,
+                  padding: 10,
+                }}>
+                <View
+                  style={{
+                    margin: SIZES.padding,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      ...FONTS.h6,
+                      textAlign: 'center',
+                      color: COLORS.secondary,
+                    }}>
+                    This profissinal did not uplode his/her certificate
+                  </Text>
+                </View>
+              </LinearGradient>
+            </View>
+          )}
           <Text
             style={{
               ...FONTS.h4,
@@ -604,6 +738,78 @@ const ProfessionalProfile = ({navigation, route}) => {
           </View>
         </View>
       </ScrollView>
+      <Modal visible={dialog !== false} animated animationType="slide">
+        <ImageBackground
+          source={
+            dialog !== false
+              ? {
+                  uri:
+                    profData.LicenseCertificate ||
+                    'https://i.ibb.co/YjC43xX/uploading.jpg',
+                }
+              : null
+          }
+          style={{
+            height: SIZES.height,
+            width: SIZES.width,
+          }}
+          imageStyle={{
+            borderRadius: 7,
+            justifyContent: 'center',
+            alignItems: 'center',
+            resizeMode: 'contain',
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              paddingHorizontal: 10,
+              paddingTop: 10,
+              alignItems: 'center',
+              backgroundColor: COLORS.white,
+            }}>
+            {/* GoBack */}
+            <TouchableOpacity
+              style={{
+                width: 45,
+                height: 45,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onPress={() => setDialog(false)}>
+              <Icon name="chevron-back" size={25} color={COLORS.secondary} />
+            </TouchableOpacity>
+
+            {/* Title */}
+            <View
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text
+                style={{
+                  color: COLORS.secondary,
+                  ...FONTS.h4,
+                }}>
+                LPCC
+              </Text>
+            </View>
+
+            <View style={{marginRight: 20, tintColor: COLORS.lightGray}}>
+              <Image
+                // source={UresData.icon}
+                source={icons.certificate}
+                resizeMode="contain"
+                style={{
+                  height: 30,
+                  width: 30,
+                  // tintColor: UresData.color,
+                }}
+              />
+            </View>
+          </View>
+        </ImageBackground>
+      </Modal>
     </SafeAreaView>
   );
 };

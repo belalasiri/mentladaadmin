@@ -14,26 +14,13 @@ import firestore from '@react-native-firebase/firestore';
 import {Avatar} from 'react-native-elements';
 
 const Home = ({navigation, route}) => {
-  const [userData, setUserData] = useState(null);
-  const [professionalData, setProfessionalData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allPosts, setAllPost] = useState(null);
-  const [posts, setPosts] = useState(null);
-
-  const getProfessional = async () => {
-    setLoading(true);
-
-    await firestore()
-      .collection('Professional')
-      .doc(route.params.professionalId)
-      .get()
-      .then(documentSnapshot => {
-        if (documentSnapshot.exists) {
-          setProfessionalData(documentSnapshot.data());
-          setLoading(false);
-        }
-      });
-  };
+  const [session, setSession] = useState([]);
+  const [userData, setUserData] = useState([]);
+  const [professionalData, setProfessionalData] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [Blogs, setBlogs] = useState([]);
 
   const featuresData = [
     {
@@ -66,37 +53,99 @@ const Home = ({navigation, route}) => {
       backgroundColor: COLORS.emerald,
       description: 'Blog',
     },
+    {
+      id: 5,
+      icon: icons.blog,
+      color: COLORS.primary,
+      backgroundColor: COLORS.lightpurple,
+      description: 'Plans',
+    },
   ];
 
-  const specialPromoData = [
+  const MentladaData = [
     {
       id: 1,
-      img: images.promoBanner,
-      title: 'Bonus Cashback1',
-      description: "Don't miss it. Grab it now!",
+      img: icons.Data_6,
+      title: 'Professionals',
+      color: COLORS.emerald,
+      tintColor: COLORS.primary,
     },
     {
       id: 2,
-      img: images.promoBanner,
-      title: 'Bonus Cashback2',
-      description: "Don't miss it. Grab it now!",
+      img: icons.Data_7,
+      title: 'Patients',
+      color: COLORS.lightpurple,
+      tintColor: COLORS.secondary,
     },
+
     {
       id: 3,
-      img: images.promoBanner,
-      title: 'Bonus Cashback3',
-      description: "Don't miss it. Grab it now!",
+      img: icons.Data_1,
+      title: 'Post',
+      color: COLORS.lightyellow,
+      tintColor: COLORS.yellow,
     },
     {
       id: 4,
-      img: images.promoBanner,
-      title: 'Bonus Cashback4',
-      description: "Don't miss it. Grab it now!",
+      img: icons.Data_2,
+      title: 'Blogs',
+      color: COLORS.lightGreen,
+      tintColor: COLORS.green,
+    },
+    {
+      id: 5,
+      img: icons.Chat,
+      title: 'Sessions',
+      color: COLORS.lightpurple,
+      tintColor: COLORS.green,
     },
   ];
 
-  const [features, setFeatures] = React.useState(featuresData);
-  const [specialPromos, setSpecialPromos] = React.useState(specialPromoData);
+  useLayoutEffect(() => {
+    const FETCH_PROFESSIONAL = firestore()
+      .collection('Professional')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot =>
+        setProfessionalData(
+          snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})),
+        ),
+      );
+    const FETCH_BLOGS = firestore()
+      .collection('Blogs')
+      .orderBy('blogTime', 'desc')
+      .onSnapshot(snapshot =>
+        setBlogs(snapshot.docs.map(doc => ({id: doc.id, data: doc.data()}))),
+      );
+    const FETCH_POSTS = firestore()
+      .collection('posts')
+      .orderBy('postTime', 'desc')
+      .onSnapshot(snapshot =>
+        setPosts(snapshot.docs.map(doc => ({id: doc.id, data: doc.data()}))),
+      );
+    const FETCH_PATIENTS = firestore()
+      .collection('users')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot =>
+        setUserData(snapshot.docs.map(doc => ({id: doc.id, data: doc.data()}))),
+      );
+    const FETCH_SESSIONS = firestore()
+      .collection('session')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot =>
+        setSession(snapshot.docs.map(doc => ({id: doc.id, data: doc.data()}))),
+      );
+
+    return (
+      FETCH_PROFESSIONAL,
+      FETCH_BLOGS,
+      FETCH_POSTS,
+      FETCH_PATIENTS,
+      FETCH_SESSIONS
+    );
+  }, [navigation]);
+
+  const [features] = React.useState(featuresData);
+  const [allMentladaData] = React.useState(MentladaData);
 
   function renderHeader() {
     return (
@@ -179,22 +228,6 @@ const Home = ({navigation, route}) => {
       </LinearGradient>
     );
   }
-  // function renderProf() {
-  //   return (
-  //     <FlatList
-  //       horizontal
-  //       data={posts}
-  //       keyExtractor={item => item.id}
-  //       showsHorizontalScrollIndicator={false}
-  //       renderItem={({item}) => (
-  //         <View>
-  //           <Avatar rounded source={images.wallieLogo} />
-  //           <Text>{item.post}</Text>
-  //         </View>
-  //       )}
-  //     />
-  //   );
-  // }
 
   function renderFeatures() {
     const Header = () => (
@@ -257,70 +290,97 @@ const Home = ({navigation, route}) => {
     );
   }
 
-  function renderPromos() {
+  function renderMentladaData() {
     const HeaderComponent = () => (
       <View>
         {renderHeader()}
         {renderBanner()}
-        {/* {renderProf()} */}
         {renderFeatures()}
-        {/* {renderPromoHeader()} */}
+        {renderDataHeader()}
       </View>
     );
 
-    const renderPromoHeader = () => (
+    const renderDataHeader = () => (
       <View
         style={{
           flexDirection: 'row',
           marginBottom: SIZES.padding,
         }}>
         <View style={{flex: 1}}>
-          <Text style={{...FONTS.h3}}>Special Promos</Text>
+          <Text style={{...FONTS.h3}}>Mentlada Data</Text>
         </View>
-        <TouchableOpacity onPress={() => console.log('View All')}>
-          <Text style={{color: COLORS.gray, ...FONTS.body4}}>View All</Text>
-        </TouchableOpacity>
       </View>
     );
 
     const renderItem = ({item}) => (
-      <Text>ss</Text>
-      // <TouchableOpacity
-      //   style={{
-      //     marginVertical: SIZES.base,
-      //     width: SIZES.width / 2.5,
-      //   }}
-      //   onPress={() => console.log(item.title)}>
-      //   <View
-      //     style={{
-      //       height: 80,
-      //       borderTopLeftRadius: 20,
-      //       borderTopRightRadius: 20,
-      //       backgroundColor: COLORS.primary,
-      //     }}>
-      //     <Image
-      //       source={images.promoBanner}
-      //       resizeMode="cover"
-      //       style={{
-      //         width: '100%',
-      //         height: '100%',
-      //         borderTopLeftRadius: 20,
-      //         borderTopRightRadius: 20,
-      //       }}
-      //     />
-      //   </View>
-
-      //   <View
-      //     style={{
-      //       padding: SIZES.padding,
-      //       backgroundColor: COLORS.lightGray,
-      //       borderBottomLeftRadius: 20,
-      //       borderBottomRightRadius: 20,
-      //     }}>
-      //     <Text style={{...FONTS.h4}}>{item.title}</Text>
-      //     <Text style={{...FONTS.body4}}>{item.description}</Text>
-      //   </View>
-      // </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          marginVertical: SIZES.base,
+          width: SIZES.width / 2.5,
+        }}>
+        <View
+          style={{
+            height: 100,
+            borderTopLeftRadius: 100,
+            borderTopRightRadius: 100,
+            justifyContent: 'flex-end',
+            paddingBottom: 5,
+            alignItems: 'center',
+            backgroundColor: item.color,
+          }}>
+          <Image
+            source={item.img}
+            resizeMode="cover"
+            style={{
+              width: 70,
+              height: 70,
+              alignItems: 'center',
+            }}
+          />
+        </View>
+        <View
+          style={{
+            // padding: SIZES.padding / 2,
+            borderBottomLeftRadius: 7,
+            borderBottomRightRadius: 7,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          {item.title == 'Professionals' ? (
+            <>
+              <Text style={{...FONTS.h2, color: COLORS.secondary}}>
+                {professionalData.length || '0'}
+              </Text>
+            </>
+          ) : item.title == 'Post' ? (
+            <>
+              <Text style={{...FONTS.h2, color: COLORS.secondary}}>
+                {posts.length || '0'}
+              </Text>
+            </>
+          ) : item.title == 'Patients' ? (
+            <>
+              <Text style={{...FONTS.h2, color: COLORS.secondary}}>
+                {userData.length || '0'}
+              </Text>
+            </>
+          ) : item.title == 'Blogs' ? (
+            <>
+              <Text style={{...FONTS.h2, color: COLORS.secondary}}>
+                {Blogs.length || '0'}
+              </Text>
+            </>
+          ) : item.title == 'Sessions' ? (
+            <>
+              <Text style={{...FONTS.h2, color: COLORS.secondary}}>
+                {session.length || '0'}
+              </Text>
+            </>
+          ) : null}
+          <Text style={{...FONTS.body4}}>{item.title}</Text>
+          {/* <Text style={{...FONTS.body4}}>{item.description}</Text> */}
+        </View>
+      </TouchableOpacity>
     );
 
     return (
@@ -329,7 +389,7 @@ const Home = ({navigation, route}) => {
         contentContainerStyle={{paddingHorizontal: SIZES.padding * 3}}
         numColumns={2}
         columnWrapperStyle={{justifyContent: 'space-between'}}
-        data={specialPromos}
+        data={allMentladaData}
         keyExtractor={item => `${item.id}`}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
@@ -339,17 +399,8 @@ const Home = ({navigation, route}) => {
   }
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: COLORS.white,
-        paddingHorizontal: SIZES.padding * 3,
-      }}>
-      {renderHeader()}
-      {renderBanner()}
-      {/* {renderProf()} */}
-      {renderFeatures()}
-      {/* {renderPromoHeader()} */}
+    <SafeAreaView style={{flex: 1, backgroundColor: COLORS.white}}>
+      {renderMentladaData()}
     </SafeAreaView>
   );
 };

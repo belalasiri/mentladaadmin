@@ -17,6 +17,8 @@ import EditPatientsProfile from '../Screens/subScreens/EditPatientsProfile';
 import FullPost from '../Screens/subScreens/FullPost';
 import BlogContent from '../Screens/subScreens/BlogContent';
 import categoryDetails from '../Screens/subScreens/categoryDetails';
+import AddPlan from '../Screens/subScreens/AddPlan';
+import EditPlan from '../Screens/subScreens/EditPlan';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -73,7 +75,7 @@ export default function AppStack() {
   return (
     <SafeAreaProvider>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen name="Homes" component={HomeStack} />
+        <Stack.Screen name="Homes" component={Home} />
         <Stack.Screen name="Details" component={Details} />
         <Stack.Screen
           name="ProfessionalProfile"
@@ -91,6 +93,8 @@ export default function AppStack() {
         <Stack.Screen name="FullPost" component={FullPost} />
         <Stack.Screen name="BlogContent" component={BlogContent} />
         <Stack.Screen name="categoryDetails" component={categoryDetails} />
+        <Stack.Screen name="AddPlan" component={AddPlan} />
+        <Stack.Screen name="EditPlan" component={EditPlan} />
       </Stack.Navigator>
     </SafeAreaProvider>
   );
