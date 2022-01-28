@@ -11,6 +11,7 @@ import ProgressiveImage from '../../config/ProgressiveImage';
 import Feather from 'react-native-vector-icons/Feather';
 import Footer from './post/MainFooter';
 import {BallIndicator} from 'react-native-indicators';
+import FooterContainer from './post/FooterContainer';
 
 const postMainCon = ({
   Name,
@@ -75,10 +76,14 @@ const postMainCon = ({
             />
           ) : null}
         </TouchableOpacity>
+        {/* <FooterContainer
+          CommentsLength={CommentsLength}
+          likedCount={likeList0}
+        /> */}
         <Footer
           CommentsLength={CommentsLength}
           onCommentPress={onCommentPress}
-          likeList={likeList}
+          likedCount={likeList}
         />
       </Pressable>
     </View>

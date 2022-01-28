@@ -19,8 +19,11 @@ import NameContainer from './post/NameContainer';
 import BodyContainer from './post/BodyContainer';
 import FooterContainer from './post/FooterContainer';
 import CustomComments from './post/CommentsList';
-import {BallIndicator} from 'react-native-indicators';
+import {BallIndicator, BarIndicator} from 'react-native-indicators';
 
+// libraries
+import Icon from 'react-native-vector-icons/Ionicons';
+import {Avatar} from 'react-native-elements';
 const FullPost = ({navigation, route}) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,6 +34,89 @@ const FullPost = ({navigation, route}) => {
   const [deleting, setDeleting] = useState(false);
 
   const post = route.params;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: '',
+      headerStyle: {elevation: 0, backgroundColor: '#fff'},
+      headerTitleStyle: {color: COLORS.secondary, ...FONTS.h5},
+      headerTitleAlign: 'Left',
+      headerTintColor: COLORS.secondary,
+
+      headerLeft: () => (
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={() => {
+            navigation.goBack();
+          }}>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => {
+              navigation.goBack();
+            }}>
+            <Icon name="chevron-back" size={25} color={COLORS.secondary} />
+          </TouchableOpacity>
+          {loading ? (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginHorizontal: SIZES.padding * 1.4,
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}>
+                <BarIndicator color={COLORS.secondary} size={15} />
+                <Text
+                  style={{
+                    ...FONTS.body4,
+                    color: COLORS.secondary,
+                    marginHorizontal: SIZES.padding * 2,
+                  }}>
+                  Loading..
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View
+              style={{
+                flexDirection: 'row',
+                marginLeft: SIZES.padding - 5,
+              }}>
+              <Avatar
+                rounded
+                size={43}
+                source={{
+                  uri: userData
+                    ? userData.userImg ||
+                      'https://gcdn.pbrd.co/images/in5sUpqlUHfV.png?o=1'
+                    : 'https://gcdn.pbrd.co/images/in5sUpqlUHfV.png?o=1',
+                }}
+              />
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'flex-start',
+                  marginHorizontal: SIZES.padding,
+                }}>
+                <Text style={{...FONTS.h6, color: COLORS.secondary}}>
+                  {userName}
+                </Text>
+                <Text style={{...FONTS.body6, color: COLORS.secondary}}>
+                  {postTime}
+                </Text>
+              </View>
+            </View>
+          )}
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, userData]);
 
   const getUser = async () => {
     await firestore()
@@ -107,46 +193,6 @@ const FullPost = ({navigation, route}) => {
       });
   };
 
-  const handleDeletePost = () => {
-    Alert.alert(
-      'Delete this post',
-      'Are you sure you want to delete this post from Mentlada?',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed!'),
-          style: 'cancel',
-        },
-        {
-          text: 'Confirm deleting',
-          onPress: () => onDeletePost(),
-        },
-      ],
-      {cancelable: false},
-    );
-  };
-
-  const onDeletePost = () => {
-    setDeleting(true);
-    firebase
-      .firestore()
-      .collection('posts')
-      .doc(post.id)
-      .delete()
-
-      .then(() => {
-        navigation.goBack();
-        setDeleting(false);
-        ToastAndroid.showWithGravityAndOffset(
-          'Comment deleted successfully',
-          ToastAndroid.SHORT,
-          ToastAndroid.BOTTOM,
-          0,
-          200,
-        );
-      });
-  };
-
   useEffect(() => {
     getUser();
   }, []);
@@ -163,9 +209,9 @@ const FullPost = ({navigation, route}) => {
     <SafeAreaView style={{backgroundColor: COLORS.white, flex: 1}}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={{paddingVertical: SIZES.padding * 4}}>
+        style={{paddingVertical: SIZES.padding}}>
         <View style={{marginBottom: SIZES.padding * 4, flex: 1}}>
-          <NameContainer
+          {/* <NameContainer
             userName={userName}
             userImg={{
               uri: userData
@@ -176,7 +222,7 @@ const FullPost = ({navigation, route}) => {
             postTime={postTime}
             onBack={() => navigation.goBack()}
             loading={loading}
-          />
+          /> */}
           <BodyContainer
             postContent={post.post}
             conPostImage={post.postImg}

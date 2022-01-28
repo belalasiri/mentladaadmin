@@ -13,7 +13,7 @@ const BodyContainer = ({
     <View style={{}}>
       <View
         style={{
-          marginVertical: SIZES.padding * 1.2,
+          marginVertical: SIZES.padding * 1,
           paddingHorizontal: SIZES.padding * 2,
         }}>
         <Text style={{...FONTS.body4, color: COLORS.secondary}}>

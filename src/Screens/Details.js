@@ -13,31 +13,42 @@ import {
 
 import firestore from '@react-native-firebase/firestore';
 import {COLORS, FONTS, icons, images, SIZES} from '../constants';
+import storage from '@react-native-firebase/storage';
 
 //Libraries
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import BlogSwitch from '../components/BlogSwitch';
-import TwoSwich from '../components/TwoSwich';
 import CustomPost from './subScreens/CustomPost';
 import BlogScreen from './Blogs';
 import BlogCustom from './subScreens/BlogCustom';
 import {ListItem} from 'react-native-elements';
 import PlansCustom from './subScreens/PlansCustom';
+import PackagesContent from './subScreens/PackagesContent';
+import Sessions from './Sessions';
+import ProfitsContent from './subScreens/ProfitsContent';
+import TwoSwichs from '../components/TwoSwichs';
+import StudentPackage from './subScreens/StudentPackage';
+import StudentPackageList from './subScreens/StudentPackageList';
+
 const Details = ({navigation, route}) => {
   const [Profdata, setProfdata] = useState(null);
   const [ProfVarData, setProfVarData] = useState(null);
   const [unVarProfs, setunVarProfs] = useState(null);
   const [PatientsData, setPatientsData] = useState(null);
   const [plansData, setPlansData] = useState([]);
+  const [packages, setPackages] = useState([]);
+  const [studentPackages, setStudentPackages] = useState([]);
+  const [studentPackagesPending, setStudentPackagesPending] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isVerified, setVerified] = useState(null);
-  const [professionalData, setProfessionalData] = useState(null);
   const [requests, setRequests] = useState(true);
   const [posts, setPosts] = useState(null);
   const [Blogs, setBlogs] = useState(null);
+  const [session, setSession] = useState([]);
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [profitTotal, setProfitTotal] = useState(0);
+  const [profitsPatients, setProfitsPatients] = useState(null);
 
   const UresData = route.params;
 
@@ -78,22 +89,6 @@ const Details = ({navigation, route}) => {
           </Text>
         </View>
 
-        {/* Profile */}
-        {/* 
-        <View style={{marginRight: 20, tintColor: route.params.color}}>
-          <Image
-            // source={route.params.icon}
-            source={icon}
-            resizeMode="contain"
-            style={{
-              height: 25,
-              width: 25,
-              // tintColor: route.params.color,
-              tintColor: {iconColor},
-            }}
-          />
-        </View>
-        */}
         <View style={{marginRight: 20, tintColor: UresData.color}}>
           <Image
             // source={UresData.icon}
@@ -220,29 +215,69 @@ const Details = ({navigation, route}) => {
           })),
         ),
       );
-    // const FETCH_PLANS = firestore()
-    //   .collection('packages')
-    //   .orderBy('subscribedAt', 'desc')
-    //   .onSnapshot(snapshot =>
-    //     setPlansData(
-    //       snapshot.docs.map(doc => ({
-    //         id: doc.id,
-    //         data: doc.data(),
-    //         CVC: doc.data().CVC,
-    //         subscribedAt: doc.data().subscribedAt,
-    //         CardExpiryDate: doc.data().CardExpiryDate,
-    //         subscribedAt: doc.data().subscribedAt,
-    //         NameOnCard: doc.data().NameOnCard,
-    //         Price: doc.data().Price,
-    //         UserID: doc.data().UserID,
-    //         planCategory: doc.data().planCategory,
-    //         seconds: doc.data().seconds,
-    //       })),
-    //     ),
-    //   );
+
+    const FETCH_PACKAGES = firestore()
+      .collection('packages')
+      .orderBy('subscribedAt', 'desc')
+      .onSnapshot(snapshot =>
+        setPackages(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data(),
+            CVC: doc.data().CVC,
+            CardExpiryDate: doc.data().CardExpiryDate,
+            NameOnCard: doc.data().NameOnCard,
+            Price: doc.data().Price,
+            UserID: doc.data().UserID,
+            cardNumber: doc.data().cardNumber,
+            planCategory: doc.data().planCategory,
+            seconds: doc.data().seconds,
+            subscribedAt: doc.data().subscribedAt,
+          })),
+        ),
+      );
+    const FETCH_STUDENT_PACKAGES_PENDING = firestore()
+      .collection('packages')
+      .where('approved', '!=', 'approved')
+      .onSnapshot(snapshot =>
+        setStudentPackagesPending(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data(),
+            name: doc.data().name,
+            Price: doc.data().Price,
+            UserID: doc.data().UserID,
+            planCategory: doc.data().planCategory,
+            seconds: doc.data().seconds,
+            MatricNumber: doc.data().MatricNumber,
+            university: doc.data().university,
+            RequestTime: doc.data().RequestTime,
+            approved: doc.data().approved,
+          })),
+        ),
+      );
+    const FETCH_STUDENT_PACKAGES = firestore()
+      .collection('packages')
+      .orderBy('RequestTime', 'desc')
+      .onSnapshot(snapshot =>
+        setStudentPackages(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data(),
+            name: doc.data().name,
+            Price: doc.data().Price,
+            UserID: doc.data().UserID,
+            planCategory: doc.data().planCategory,
+            seconds: doc.data().seconds,
+            MatricNumber: doc.data().MatricNumber,
+            university: doc.data().university,
+            RequestTime: doc.data().RequestTime,
+            approved: doc.data().approved,
+          })),
+        ),
+      );
     const FETCH_PLANS = firestore()
       .collection('Plans')
-      // .limit(2)
       .orderBy('lastUpdated', 'desc')
       .onSnapshot(snapshot =>
         setPlansData(
@@ -255,6 +290,27 @@ const Details = ({navigation, route}) => {
           })),
         ),
       );
+    const FETCH_SESSIONS = firestore()
+      .collection('session')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot =>
+        setSession(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data(),
+            approved: doc.data().approved,
+            createdAt: doc.data().createdAt,
+            isRequested: doc.data().isRequested,
+            patientName: doc.data().patientName,
+            patientEmail: doc.data().patientEmail,
+            patientAvatar: doc.data().patientAvatar,
+            professionalName: doc.data().professionalName,
+            profEmail: doc.data().profEmail,
+            professionalAvatar: doc.data().professionalAvatar,
+            professionalId: doc.data().professionalId,
+          })),
+        ),
+      );
 
     return (
       fetchProfs,
@@ -262,7 +318,11 @@ const Details = ({navigation, route}) => {
       fetchUnVarProfs,
       fetcBlogs,
       fetchPatients,
-      FETCH_PLANS
+      FETCH_PLANS,
+      FETCH_PACKAGES,
+      FETCH_SESSIONS,
+      FETCH_STUDENT_PACKAGES,
+      FETCH_STUDENT_PACKAGES_PENDING
     );
   }, [navigation]);
 
@@ -367,6 +427,21 @@ const Details = ({navigation, route}) => {
     }
   };
 
+  const checkProfits = async () => {
+    await firestore()
+      .collection('packages')
+      .get()
+      .then(querySnapshot => {
+        let packageCostTotal = 0;
+        querySnapshot.forEach(doc => {
+          // console.log(doc);
+          setProfitTotal(
+            (packageCostTotal = packageCostTotal + parseInt(doc.data().Price)),
+          );
+        });
+      });
+  };
+
   const deletePost = postId => {
     console.log('Current Post Id: ', postId);
     setDeleting(true);
@@ -438,8 +513,82 @@ const Details = ({navigation, route}) => {
       .catch(e => console.log('Error deleting posst.', e));
   };
 
+  // -----------------------------------------------------------------------------------------------
+
+  const deletePostz = postId => {
+    console.log('Current Post Id: ', postId);
+    setDeleting(true);
+
+    firestore()
+      .collection('posts')
+      .doc(postId)
+      .get()
+      .then(documentSnapshot => {
+        if (documentSnapshot.exists) {
+          const {postImg} = documentSnapshot.data();
+
+          if (postImg != null) {
+            const storageRef = storage().refFromURL(postImg);
+            const imageRef = storage().ref(storageRef.fullPath);
+
+            imageRef
+              .delete()
+              .then(() => {
+                // console.log(`${postImg} has been deleted successfully.`);
+                deleteFirestoreDataz(postId);
+              })
+              .catch(e => {
+                console.log('Error while deleting the image. ', e);
+              });
+            //  If the post image is not available
+          } else {
+            deleteFirestoreDataz(postId);
+          }
+        }
+      });
+  };
+
+  const handleDeletez = postId => {
+    Alert.alert(
+      'Delete post',
+      'Are you sure you want to delete this post?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed!'),
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => deletePostz(postId),
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  const deleteFirestoreDataz = postId => {
+    firestore()
+      .collection('posts')
+      .doc(postId)
+      .delete()
+      .then(() => {
+        setDeleting(false);
+        ToastAndroid.showWithGravityAndOffset(
+          'Your post has been deleted successfully!',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          0,
+          200,
+        );
+        setDeleted(true);
+      })
+      .catch(e => console.log('Error deleting posst.', e));
+  };
+
   useEffect(() => {
     fetchPosts();
+    checkProfits();
   }, [deleted]);
 
   return (
@@ -447,7 +596,7 @@ const Details = ({navigation, route}) => {
       style={{
         flex: 1,
         backgroundColor: '#fff',
-        paddingVertical: SIZES.padding * 2,
+        paddingTop: SIZES.padding * 2,
       }}>
       <Heder
         name={UresData.description || 'Mentlada'}
@@ -813,7 +962,8 @@ const Details = ({navigation, route}) => {
                 <CustomPost
                   key={item.id}
                   item={item}
-                  handleDeletePost={handleDelete}
+                  // handleDeletePost={handleDelete}
+                  onDeleteThePost={handleDeletez}
                   onContainerPress={() =>
                     navigation.navigate('FullPost', {
                       userId: item.userId,
@@ -858,23 +1008,6 @@ const Details = ({navigation, route}) => {
         </>
       ) : UresData.description == 'Plans' ? (
         <>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginHorizontal: 20,
-              marginBottom: 20,
-              alignItems: 'center',
-              paddingTop: 10,
-            }}>
-            <Text
-              style={{
-                color: COLORS.secondary,
-                ...FONTS.h4,
-              }}>
-              All Mentlada plans
-            </Text>
-          </View>
           <FlatList
             data={plansData}
             keyExtractor={item => item.id}
@@ -891,7 +1024,7 @@ const Details = ({navigation, route}) => {
 
           <View
             style={{
-              paddingTop: SIZES.padding,
+              paddingVertical: SIZES.padding,
               paddingHorizontal: SIZES.padding * 2,
             }}>
             <LinearGradient
@@ -913,6 +1046,192 @@ const Details = ({navigation, route}) => {
               </TouchableOpacity>
             </LinearGradient>
           </View>
+        </>
+      ) : UresData.description == 'Profits' ? (
+        <>
+          <FlatList
+            data={packages}
+            keyExtractor={item => item.id}
+            showsVerticalScrollIndicator={false}
+            renderItem={({id, item}) => (
+              <ProfitsContent key={item.id} item={item} />
+            )}
+          />
+
+          <View
+            style={{
+              paddingVertical: SIZES.padding,
+              paddingHorizontal: SIZES.padding * 2,
+            }}>
+            <LinearGradient
+              colors={[COLORS.lightpurple, COLORS.lightGreen]}
+              start={{x: 0, y: 1}}
+              end={{x: 0, y: 0}}
+              style={{borderRadius: 7, padding: 10}}>
+              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <View style={{paddingBottom: 10}}>
+                  <Image
+                    source={icons.profits}
+                    resizeMode="cover"
+                    style={{width: 40, height: 40, alignItems: 'center'}}
+                  />
+                </View>
+                <Text style={{...FONTS.h3, color: COLORS.secondary}}>
+                  RM{profitTotal > 0 ? profitTotal : 0}
+                </Text>
+                <Text style={{...FONTS.body4}}>Mentlada profits</Text>
+              </View>
+            </LinearGradient>
+          </View>
+        </>
+      ) : UresData.description == 'Sessions' ? (
+        <>
+          <FlatList
+            data={session}
+            keyExtractor={item => item.id}
+            showsVerticalScrollIndicator={false}
+            renderItem={({id, item}) => <Sessions key={item.id} item={item} />}
+          />
+        </>
+      ) : UresData.description == 'Packages' ? (
+        <>
+          <TwoSwichs
+            selectionMode={1}
+            option1="Users"
+            option2="Students"
+            option3="Requested"
+            onSelectSwitch={onSelectSwitch}
+          />
+          {requests == 1 && (
+            <View style={{flex: 1}}>
+              <FlatList
+                data={packages}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({id, item}) => (
+                  <PackagesContent key={item.id} item={item} />
+                )}
+              />
+            </View>
+          )}
+          {requests == 2 && (
+            <View style={{flex: 1}}>
+              {studentPackages?.[0] ? (
+                <FlatList
+                  data={studentPackages}
+                  keyExtractor={item => item.id}
+                  showsVerticalScrollIndicator={false}
+                  renderItem={({id, item}) => (
+                    <StudentPackageList key={item.id} item={item} />
+                  )}
+                />
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginVertical: 20,
+                    marginBottom: 50,
+                  }}>
+                  <Image
+                    source={icons.Data_6}
+                    style={{
+                      height: 100,
+                      width: 100,
+                    }}
+                  />
+                  <View
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 10,
+                    }}>
+                    <Text
+                      style={{
+                        ...FONTS.h5,
+                        color: COLORS.secondary,
+                      }}>
+                      Students packages requests
+                    </Text>
+                    <Text
+                      style={{
+                        ...FONTS.body6,
+                        color: COLORS.secondary,
+                        textAlign: 'center',
+                        width: SIZES.width - 40,
+                        marginTop: 10,
+                      }}>
+                      When any student requests a free session, the request will
+                      be shown here for you to accept or deny.
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
+          {requests == 3 && (
+            <View style={{flex: 1}}>
+              {studentPackagesPending?.[0] ? (
+                <FlatList
+                  data={studentPackagesPending}
+                  keyExtractor={item => item.id}
+                  showsVerticalScrollIndicator={false}
+                  renderItem={({id, item}) => (
+                    <StudentPackage
+                      key={item.id}
+                      item={item}
+                      onRequestedProfilePress={() =>
+                        navigation.navigate('RequestedProfile', {item: item})
+                      }
+                    />
+                  )}
+                />
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginVertical: 20,
+                    marginBottom: 50,
+                  }}>
+                  <Image
+                    source={icons.Data_6}
+                    style={{
+                      height: 100,
+                      width: 100,
+                    }}
+                  />
+                  <View
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 10,
+                    }}>
+                    <Text
+                      style={{
+                        ...FONTS.h5,
+                        color: COLORS.secondary,
+                      }}>
+                      Students packages requests
+                    </Text>
+                    <Text
+                      style={{
+                        ...FONTS.body6,
+                        color: COLORS.secondary,
+                        textAlign: 'center',
+                        width: SIZES.width - 40,
+                        marginTop: 10,
+                      }}>
+                      When any student requests a free session, the request will
+                      be shown here for you to accept or deny.
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
         </>
       ) : null}
     </SafeAreaView>

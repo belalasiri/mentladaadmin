@@ -39,6 +39,7 @@ const PatientsProfile = ({route, navigation}) => {
   const [posts, setPosts] = useState([]);
   const [session, setSession] = useState([]);
   const [packageData, setPackageData] = useState(0);
+  const [ApprovedChats, setApprovedChats] = useState([]);
 
   const getPatient = async () => {
     setLoading(true);
@@ -164,7 +165,18 @@ const PatientsProfile = ({route, navigation}) => {
   useEffect(() => {
     getPatient();
     fetchPosts();
-  }, [patientData, posts]);
+
+    const APPROVED = firestore()
+      .collection('session')
+      .where('patientEmail', '==', route.params.patientEmail)
+      .where('approved', '==', 'approved')
+      .onSnapshot(snapshot =>
+        setApprovedChats(
+          snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})),
+        ),
+      );
+    return APPROVED;
+  }, [patientData, posts, navigation]);
 
   const formatted = moment
     .utc(packageData * 1000)
@@ -247,95 +259,6 @@ const PatientsProfile = ({route, navigation}) => {
             </View>
           </View>
 
-          <View
-            style={{
-              width: '100%',
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              marginTop: 10,
-            }}>
-            <LinearGradient
-              colors={[COLORS.yellow, COLORS.lightGreen]}
-              start={{x: 0.5, y: 3.0}}
-              end={{x: 0.25, y: 0}}
-              style={{
-                alignItems: 'center',
-                borderRadius: 7,
-                margin: 5,
-              }}>
-              <Button
-                onPress={() => {
-                  navigation.navigate('EditPatientsProfile', {
-                    userId: item.patientId,
-                  });
-                }}
-                title="Edit this profile"
-                titleStyle={{...FONTS.h6, color: COLORS.secondary}}
-                buttonStyle={{
-                  backgroundColor: 'transparent',
-                  borderColor: 'transparent',
-                  borderWidth: 0,
-                  borderRadius: 7,
-                }}
-                containerStyle={{
-                  width: SIZES.width / 3 + 35,
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                }}
-              />
-            </LinearGradient>
-            <LinearGradient
-              colors={[COLORS.primary, COLORS.emerald]}
-              start={{x: 0.5, y: 6.0}}
-              end={{x: 0.0, y: 0.25}}
-              style={{
-                alignItems: 'center',
-                borderRadius: 7,
-                margin: 5,
-                flex: 1,
-              }}>
-              {isUpdating ? (
-                <View
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <BallIndicator color={COLORS.secondary} size={10} />
-                </View>
-              ) : (
-                <Button
-                  // onPress={handleDelete}
-                  title="Delete this account"
-                  titleStyle={{...FONTS.h6, color: COLORS.primary}}
-                  buttonStyle={{
-                    backgroundColor: 'transparent',
-                    borderColor: 'transparent',
-                    borderWidth: 0,
-                  }}
-                  containerStyle={{
-                    width: SIZES.width / 3 + 35,
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    flex: 1.3,
-                  }}
-                />
-              )}
-            </LinearGradient>
-          </View>
-          <View style={styles.userInfoItem}>
-            {packageData ? (
-              <Text
-                style={{
-                  ...FONTS.h5,
-                  color: COLORS.secondary,
-                  marginBottom: 5,
-                }}>
-                {formatted}
-              </Text>
-            ) : (
-              <Text style={styles.userInfoTitle}>No plan</Text>
-            )}
-          </View>
           <View style={{flexDirection: 'row', paddingTop: SIZES.padding}}>
             <LinearGradient
               colors={[COLORS.lightpurple, COLORS.lightyellow]}
@@ -348,27 +271,99 @@ const PatientsProfile = ({route, navigation}) => {
                 flex: 1,
                 margin: 5,
               }}>
-              <View style={[styles.container]}>
-                <Icon name="star" size={20} color={COLORS.yellow} />
-                <Text style={{...FONTS.h5}}>222</Text>
-                <Text style={{...FONTS.body5}}>Reviews</Text>
+              <View
+                style={{
+                  alignItems: 'center',
+                  borderRadius: 7,
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  justifyContent: 'center',
+                }}>
+                <Text
+                  style={{
+                    ...FONTS.h4,
+                    width: 100,
+                    textAlign: 'center',
+                    marginTop: 5,
+                  }}>
+                  {ApprovedChats.length}
+                </Text>
+                <Text style={{...FONTS.body5}}>Professionals</Text>
               </View>
             </LinearGradient>
+
             <LinearGradient
-              colors={[COLORS.lightpurple, COLORS.lightyellow]}
+              colors={[COLORS.lightpurple, COLORS.lightGreen]}
               start={{x: 0.5, y: 2.0}}
               end={{x: 0.0, y: 0.25}}
               style={{
                 marginVertical: 5,
                 alignItems: 'center',
                 borderRadius: 7,
-                flex: 1,
                 margin: 5,
+                flex: 1,
               }}>
-              <View style={[styles.container]}>
-                <Icon name="star" size={20} color={COLORS.yellow} />
-                <Text style={{...FONTS.h5}}>4.98</Text>
-                <Text style={{...FONTS.body5}}>Reviews</Text>
+              <View
+                style={{
+                  alignItems: 'center',
+                  borderRadius: 7,
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  justifyContent: 'center',
+                }}>
+                {packageData ? (
+                  <Text
+                    style={{
+                      ...FONTS.h6,
+                      width: 100,
+                      textAlign: 'center',
+                      marginTop: 5,
+                    }}>
+                    {formatted}
+                  </Text>
+                ) : (
+                  <Text
+                    style={{
+                      ...FONTS.h6,
+                      width: 100,
+                      textAlign: 'center',
+                      marginTop: 5,
+                    }}>
+                    No Plan
+                  </Text>
+                )}
+                <Text style={{...FONTS.body5}}>Mentlada Plan</Text>
+              </View>
+            </LinearGradient>
+            <LinearGradient
+              colors={[COLORS.lightpurple, COLORS.emerald]}
+              start={{x: 0.5, y: 2.0}}
+              end={{x: 0.0, y: 0.25}}
+              style={{
+                marginVertical: 5,
+                alignItems: 'center',
+                borderRadius: 7,
+                margin: 5,
+                flex: 1,
+              }}>
+              <View
+                style={{
+                  alignItems: 'center',
+                  borderRadius: 7,
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  justifyContent: 'center',
+                }}>
+                <Text
+                  style={{
+                    ...FONTS.h4,
+                    width: 100,
+                    textAlign: 'center',
+                    marginTop: 5,
+                  }}>
+                  {posts.length}
+                </Text>
+                <Text style={{...FONTS.body5}}>Posts</Text>
               </View>
             </LinearGradient>
           </View>
@@ -596,6 +591,82 @@ const PatientsProfile = ({route, navigation}) => {
           )}
         </View>
       </ScrollView>
+      <View
+        style={{
+          width: '100%',
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          paddingHorizontal: 10,
+        }}>
+        <LinearGradient
+          colors={[COLORS.yellow, COLORS.lightGreen]}
+          start={{x: 0.5, y: 3.0}}
+          end={{x: 0.25, y: 0}}
+          style={{
+            alignItems: 'center',
+            borderRadius: 7,
+            margin: 5,
+          }}>
+          <Button
+            onPress={() => {
+              navigation.navigate('EditPatientsProfile', {
+                userId: item.patientId,
+              });
+            }}
+            title="Edit this profile"
+            titleStyle={{...FONTS.h6, color: COLORS.secondary}}
+            buttonStyle={{
+              backgroundColor: 'transparent',
+              borderColor: 'transparent',
+              borderWidth: 0,
+              borderRadius: 7,
+            }}
+            containerStyle={{
+              width: SIZES.width / 3 + 35,
+              alignSelf: 'center',
+              justifyContent: 'center',
+            }}
+          />
+        </LinearGradient>
+
+        <LinearGradient
+          colors={[COLORS.primary, COLORS.emerald]}
+          start={{x: 0.5, y: 6.0}}
+          end={{x: 0.0, y: 0.25}}
+          style={{
+            alignItems: 'center',
+            borderRadius: 7,
+            margin: 5,
+            flex: 1,
+          }}>
+          {isUpdating ? (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <BallIndicator color={COLORS.secondary} size={10} />
+            </View>
+          ) : (
+            <Button
+              // onPress={handleDelete}
+              title="Delete this account"
+              titleStyle={{...FONTS.h6, color: COLORS.primary}}
+              buttonStyle={{
+                backgroundColor: 'transparent',
+                borderColor: 'transparent',
+                borderWidth: 0,
+              }}
+              containerStyle={{
+                width: SIZES.width / 3 + 35,
+                alignSelf: 'center',
+                justifyContent: 'center',
+                flex: 1.3,
+              }}
+            />
+          )}
+        </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };

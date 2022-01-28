@@ -1,36 +1,16 @@
-import React, {useContext, useEffect, useState, useLayoutEffect} from 'react';
-import {
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  Image,
-  Modal,
-  View,
-  ToastAndroid,
-  Alert,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import React, {useEffect, useState, useLayoutEffect} from 'react';
+import {Text, StyleSheet, SafeAreaView} from 'react-native';
 import moment from 'moment';
-import firestore, {firebase} from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import {Avatar} from 'react-native-elements';
 import MainContainer from './postMainCon';
 import {COLORS, SIZES} from '../../constants';
+import storage from '@react-native-firebase/storage';
 
-const CustomPost = ({
-  item,
-  onDelete,
-  onPress,
-  onContainerPress,
-  onCommentPress,
-  navigation,
-}) => {
+const CustomPost = ({item, onPress, onContainerPress, onDeleteThePost}) => {
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [dialog, setDialog] = useState(false);
   const [CommentsList, setComments] = useState([]);
   const [likeList, setLikeList] = useState([]);
-  const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
 
   const getUser = async () => {
@@ -81,45 +61,6 @@ const CustomPost = ({
     return getComments, getLikes;
   }, []);
 
-  const handleDeletePost = () => {
-    Alert.alert(
-      'Delete this post',
-      'Are you sure you want to delete this post from Mentlada?',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed!'),
-          style: 'cancel',
-        },
-        {
-          text: 'Confirm deleting',
-          onPress: () => onDeletePost(),
-        },
-      ],
-      {cancelable: false},
-    );
-  };
-
-  const onDeletePost = () => {
-    setDeleting(true);
-    firebase
-      .firestore()
-      .collection('posts')
-      .doc(item.id)
-      .delete()
-
-      .then(() => {
-        ToastAndroid.showWithGravityAndOffset(
-          'Comment deleted successfully',
-          ToastAndroid.SHORT,
-          ToastAndroid.BOTTOM,
-          0,
-          200,
-        );
-        setDeleted(true);
-      });
-  };
-
   useEffect(() => {
     getUser();
     setDeleted(false);
@@ -136,15 +77,6 @@ const CustomPost = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <ProfilePic
-        size={50}
-        Userimage={{
-          uri: userData
-            ? userData.userImg ||
-              'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg'
-            : 'https://i.ibb.co/Rhmf85Y/6104386b867b790a5e4917b5.jpg',
-        }}
-      /> */}
       <Avatar
         size={50}
         rounded
@@ -159,8 +91,8 @@ const CustomPost = ({
       <MainContainer
         Name={UserName}
         postTime={postTime}
-        // IconName="delete"
-        onDelete={handleDeletePost}
+        IconName="delete"
+        onDelete={() => onDeleteThePost(item.id)}
         PostContent={PostContent}
         conPostImage={item.postImg}
         postImage={{uri: item.postImg}}
@@ -179,7 +111,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     width: '100%',
-    padding: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
     borderBottomWidth: 2,
     borderBottomColor: COLORS.white,
   },

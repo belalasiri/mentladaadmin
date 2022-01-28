@@ -8,6 +8,7 @@ export const COLORS = {
 
   green: '#67d8af',
   lightGreen: '#f0fbf7',
+  lightGreen2: '#d1f3e7',
 
   lime: '#61edea',
   emerald: '#effdfd',
@@ -20,6 +21,7 @@ export const COLORS = {
 
   yellow: '#ffde94',
   lightyellow: '#fffcf4',
+  lightyellow2: '#fff8ea',
 
   black: '#1E1F20',
   white: '#FFFFFF',

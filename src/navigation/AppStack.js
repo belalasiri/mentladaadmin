@@ -19,6 +19,12 @@ import BlogContent from '../Screens/subScreens/BlogContent';
 import categoryDetails from '../Screens/subScreens/categoryDetails';
 import AddPlan from '../Screens/subScreens/AddPlan';
 import EditPlan from '../Screens/subScreens/EditPlan';
+import EditHeaderText from '../Screens/subScreens/EditHeaderText';
+import RequestedProfile from '../Screens/subScreens/RequestedProfile';
+import Report from '../Screens/Report';
+import ReportDetails from '../Screens/subScreens/ReportDetails';
+import ProfReportDetails from '../Screens/subScreens/ProfReportDetails';
+import ReviewsList from '../Screens/subScreens/ReviewsList';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -90,11 +96,41 @@ export default function AppStack() {
           name="EditPatientsProfile"
           component={EditPatientsProfile}
         />
-        <Stack.Screen name="FullPost" component={FullPost} />
+        <Stack.Screen
+          name="FullPost"
+          component={FullPost}
+          options={() => ({headerShown: true})}
+        />
         <Stack.Screen name="BlogContent" component={BlogContent} />
         <Stack.Screen name="categoryDetails" component={categoryDetails} />
         <Stack.Screen name="AddPlan" component={AddPlan} />
         <Stack.Screen name="EditPlan" component={EditPlan} />
+        <Stack.Screen name="EditHeaderText" component={EditHeaderText} />
+        <Stack.Screen
+          name="RequestedProfile"
+          component={RequestedProfile}
+          options={() => ({headerShown: true})}
+        />
+        <Stack.Screen
+          name="Report"
+          component={Report}
+          options={() => ({headerShown: true})}
+        />
+        <Stack.Screen
+          name="ReportDetails"
+          component={ReportDetails}
+          options={() => ({headerShown: true})}
+        />
+        <Stack.Screen
+          name="ProfReportDetails"
+          component={ProfReportDetails}
+          options={() => ({headerShown: true})}
+        />
+        <Stack.Screen
+          name="ReviewsList"
+          component={ReviewsList}
+          options={() => ({headerShown: true})}
+        />
       </Stack.Navigator>
     </SafeAreaProvider>
   );

@@ -33,6 +33,7 @@ import {
   UIActivityIndicator,
   WaveIndicator,
 } from 'react-native-indicators';
+import ReadMore from 'react-native-read-more-text';
 
 const ProfessionalProfile = ({navigation, route}) => {
   const [profData, setProfData] = useState([]);
@@ -41,6 +42,7 @@ const ProfessionalProfile = ({navigation, route}) => {
   const [isVerified, setVerified] = useState(null);
   const [isUpdating, setUpdating] = useState(false);
   const [dialog, setDialog] = useState(false);
+  const [professionalRating, setProfessionalRating] = useState([]);
 
   const getProfessional = async () => {
     setLoading(true);
@@ -81,7 +83,7 @@ const ProfessionalProfile = ({navigation, route}) => {
   useEffect(() => {
     checkApproval();
     getProfessional();
-  }, [isVerified]);
+  }, [isVerified, isUpdating]);
 
   useLayoutEffect(() => {
     const fetchPosts = firestore()
@@ -169,6 +171,50 @@ const ProfessionalProfile = ({navigation, route}) => {
         },
       ],
       {cancelable: false},
+    );
+  };
+  useLayoutEffect(() => {
+    const getProfessionalRaiting = firestore()
+      .collection('Professional')
+      .doc(route.params.professionalId)
+      .collection('Rating')
+      .orderBy('ReviewTime', 'desc')
+      .onSnapshot(snapshot =>
+        setProfessionalRating(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            ReviewerId: doc.data().ReviewerId,
+            ReviewContent: doc.data().ReviewContent,
+            ReviewTime: doc.data().ReviewTime,
+            Review: doc.data().Review,
+          })),
+        ),
+      );
+
+    return getProfessionalRaiting;
+  }, [navigation]);
+
+  let starRatings = 0;
+  professionalRating.forEach(item => {
+    starRatings += item.Review / professionalRating.length;
+  });
+  const _renderTruncatedFooter = handlePress => {
+    return (
+      <Text
+        style={{color: COLORS.primary, marginTop: 5, ...FONTS.h6}}
+        onPress={handlePress}>
+        Read more
+      </Text>
+    );
+  };
+
+  const _renderRevealedFooter = handlePress => {
+    return (
+      <Text
+        style={{color: COLORS.primary, marginTop: 5, ...FONTS.h6}}
+        onPress={handlePress}>
+        Show less
+      </Text>
     );
   };
 
@@ -362,7 +408,8 @@ const ProfessionalProfile = ({navigation, route}) => {
                   {isUpdating ? (
                     <View
                       style={{alignItems: 'center', justifyContent: 'center'}}>
-                      <ActivityIndicator size="small" color={COLORS.primary} />
+                      {/* <ActivityIndicator size="small" color={COLORS.primary} /> */}
+                      <BarIndicator color={COLORS.secondary} size={21} />
                     </View>
                   ) : (
                     <>
@@ -431,12 +478,77 @@ const ProfessionalProfile = ({navigation, route}) => {
                 flex: 1,
                 margin: 5,
               }}>
-              <ProfessionalInfo
+              {/* <ProfessionalInfo
                 icon="star"
                 iconColor={COLORS.yellow}
-                Title1="4.98"
+                Title1={starRatings}
                 Title2="Reviews"
-              />
+              /> */}
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('ReviewsList', {
+                    professionalId: route.params.professionalId,
+                    profName: route.params.profName,
+                  })
+                }>
+                <View
+                  style={{
+                    alignItems: 'center',
+                    borderRadius: 7,
+                    paddingTop: 10,
+                    paddingBottom: 10,
+                    justifyContent: 'center',
+                  }}>
+                  <Icon name="star" size={20} color={COLORS.yellow} />
+                  {starRatings ? (
+                    <View
+                      style={{
+                        alignItems: 'flex-end',
+                        justifyContent: 'flex-end',
+                        flexDirection: 'row',
+                      }}>
+                      {starRatings == 5 ? (
+                        <Text
+                          style={{
+                            ...FONTS.h5,
+                            color: COLORS.secondary,
+                            textAlign: 'center',
+                          }}>
+                          {starRatings}
+                        </Text>
+                      ) : (
+                        <Text
+                          style={{
+                            ...FONTS.h5,
+                            color: COLORS.secondary,
+                            textAlign: 'center',
+                          }}>
+                          {starRatings.toFixed(1)}
+                        </Text>
+                      )}
+                      <Text
+                        style={{
+                          ...FONTS.h7,
+                          color: COLORS.primary,
+                          marginTop: 5,
+                        }}>
+                        /5
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text
+                      style={{
+                        ...FONTS.h7,
+                        width: 100,
+                        textAlign: 'center',
+                        marginTop: 5,
+                      }}>
+                      No Ratings Yet
+                    </Text>
+                  )}
+                  <Text style={{...FONTS.body5}}>Reviews</Text>
+                </View>
+              </TouchableOpacity>
             </LinearGradient>
 
             <LinearGradient
@@ -488,15 +600,21 @@ const ProfessionalProfile = ({navigation, route}) => {
               }}>
               About the professional
             </Text>
-            <Text
-              style={{
-                ...FONTS.body4,
-                paddingTop: 5,
-              }}>
-              {profData
-                ? profData.about || 'No deteiles are provided..'
-                : 'No deteiles are provided..'}
-            </Text>
+            <ReadMore
+              numberOfLines={3}
+              renderTruncatedFooter={_renderTruncatedFooter}
+              renderRevealedFooter={_renderRevealedFooter}>
+              <Text
+                style={{
+                  ...FONTS.body4,
+                  marginTop: 10,
+                  flexWrap: 'wrap',
+                }}>
+                {profData
+                  ? profData.about || 'No deteiles are provided..'
+                  : 'No deteiles are provided..'}
+              </Text>
+            </ReadMore>
           </View>
           <LinearGradient
             colors={[COLORS.lightpurple, COLORS.lightGreen]}

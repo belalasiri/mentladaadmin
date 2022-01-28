@@ -54,8 +54,26 @@ const Data_9 = require('../assets/icons/add.png');
 const Chat = require('../assets/icons/chat.png');
 const certificate = require('../assets/icons/certificate.png');
 const time = require('../assets/icons/time.png');
+const Header = require('../assets/icons/header.png');
+const profits = require('../assets/icons/profits.png');
+const subscription = require('../assets/icons/subscription.png');
+const subscription2 = require('../assets/icons/subscription2.png');
+const subscriptionOutline = require('../assets/icons/subscriptionOutline.png');
+const subscriptionOutline2 = require('../assets/icons/subscriptionOutline2.png');
+const premium = require('../assets/icons/premium.png');
+const money = require('../assets/icons/money.png');
+const caution = require('../assets/icons/caution.png');
 
 export default {
+  caution,
+  money,
+  premium,
+  subscription,
+  subscription2,
+  subscriptionOutline2,
+  subscriptionOutline,
+  profits,
+  Header,
   time,
   certificate,
   Chat,

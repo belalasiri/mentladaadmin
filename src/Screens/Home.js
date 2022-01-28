@@ -12,6 +12,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 import {Avatar} from 'react-native-elements';
+import EditHeaderText from './subScreens/EditHeaderText';
+import HeaderText from './subScreens/HeaderText';
 
 const Home = ({navigation, route}) => {
   const [loading, setLoading] = useState(true);
@@ -21,29 +23,57 @@ const Home = ({navigation, route}) => {
   const [professionalData, setProfessionalData] = useState([]);
   const [posts, setPosts] = useState([]);
   const [Blogs, setBlogs] = useState([]);
+  const [Header, setHeader] = useState([]);
+  const [packages, setPackages] = useState([]);
+  const [studentPackages, setStudentPackages] = useState([]);
+  const [ProfessionalReports, setProfessionalReports] = useState([]);
+  const [patientReports, setPatientReports] = useState([]);
+  const [profitTotal, setProfitTotal] = useState(0);
+
+  const checkProfits = async () => {
+    await firestore()
+      .collection('packages')
+      .get()
+      .then(querySnapshot => {
+        let packageCostTotal = 0;
+        querySnapshot.forEach(doc => {
+          setProfitTotal(
+            (packageCostTotal = packageCostTotal + parseInt(doc.data().Price)),
+          );
+        });
+      });
+  };
+  useEffect(() => {
+    checkProfits();
+  }, []);
 
   const featuresData = [
     {
       id: 1,
       icon: icons.Professional,
-      color: COLORS.primary,
+      color: COLORS.green,
       backgroundColor: COLORS.lightGreen,
       description: 'Professionals',
+      height: 50,
+      width: 20,
     },
     {
       id: 2,
       icon: icons.patient,
-      color: COLORS.purple,
+      color: COLORS.primary,
       backgroundColor: COLORS.lightpurple,
       description: 'Patients',
+      height: 50,
+      width: 20,
     },
     {
       id: 3,
       icon: icons.post,
       color: COLORS.yellow,
-      backgroundColor: COLORS.lightyellow,
-
+      backgroundColor: COLORS.lightyellow2,
       description: 'Post',
+      height: 50,
+      width: 25,
     },
 
     {
@@ -52,13 +82,43 @@ const Home = ({navigation, route}) => {
       color: COLORS.lime,
       backgroundColor: COLORS.emerald,
       description: 'Blog',
+      height: 50,
+      width: 20,
     },
     {
       id: 5,
-      icon: icons.blog,
-      color: COLORS.primary,
-      backgroundColor: COLORS.lightpurple,
+      icon: icons.profits,
+      backgroundColor: COLORS.lightyellow2,
+      description: 'Profits',
+      height: 50,
+      width: 30,
+    },
+    {
+      id: 6,
+      icon: icons.subscription2,
+      color: COLORS.lime,
+      backgroundColor: COLORS.emerald,
       description: 'Plans',
+      height: 50,
+      width: 30,
+    },
+    {
+      id: 7,
+      icon: icons.Chat,
+      // color: COLORS.primary,
+      backgroundColor: COLORS.lightpurple,
+      description: 'Sessions',
+      height: 50,
+      width: 30,
+    },
+    {
+      id: 8,
+      icon: icons.money,
+      // color: COLORS.primary,
+      backgroundColor: COLORS.lightGreen,
+      description: 'Packages',
+      height: 50,
+      width: 30,
     },
   ];
 
@@ -82,7 +142,7 @@ const Home = ({navigation, route}) => {
       id: 3,
       img: icons.Data_1,
       title: 'Post',
-      color: COLORS.lightyellow,
+      color: COLORS.lightyellow2,
       tintColor: COLORS.yellow,
     },
     {
@@ -99,6 +159,27 @@ const Home = ({navigation, route}) => {
       color: COLORS.lightpurple,
       tintColor: COLORS.green,
     },
+    {
+      id: 6,
+      img: icons.subscription,
+      title: 'Active Packages',
+      color: COLORS.emerald,
+      tintColor: COLORS.primary,
+    },
+    {
+      id: 7,
+      img: icons.profits,
+      title: 'Mentlada profits',
+      color: COLORS.lightGreen,
+      tintColor: COLORS.primary,
+    },
+    {
+      id: 8,
+      img: icons.subscription,
+      title: 'Students Packages',
+      color: COLORS.emerald,
+      tintColor: COLORS.primary,
+    },
   ];
 
   useLayoutEffect(() => {
@@ -110,6 +191,23 @@ const Home = ({navigation, route}) => {
           snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})),
         ),
       );
+    const FETCH_PATIENTS_REPORTS = firestore()
+      .collection('PatientReports')
+      .orderBy('ReportTime', 'desc')
+      .onSnapshot(snapshot =>
+        setPatientReports(
+          snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})),
+        ),
+      );
+    const FETCH_PROFESSIONAL_REPORTS = firestore()
+      .collection('ProfessionalReports')
+      .orderBy('ReportTime', 'desc')
+      .onSnapshot(snapshot =>
+        setProfessionalReports(
+          snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})),
+        ),
+      );
+
     const FETCH_BLOGS = firestore()
       .collection('Blogs')
       .orderBy('blogTime', 'desc')
@@ -134,15 +232,50 @@ const Home = ({navigation, route}) => {
       .onSnapshot(snapshot =>
         setSession(snapshot.docs.map(doc => ({id: doc.id, data: doc.data()}))),
       );
+    const FETCH_HEADER = firestore()
+      .collection('Header')
+      .orderBy('lastUpdated', 'desc')
+      .onSnapshot(snapshot =>
+        setHeader(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            HeaderText: doc.data().HeaderText,
+          })),
+        ),
+      );
+    const FETCH_PACKAGES = firestore()
+      .collection('packages')
+      .orderBy('subscribedAt', 'desc')
+      .onSnapshot(snapshot =>
+        setPackages(snapshot.docs.map(doc => ({id: doc.id, data: doc.data()}))),
+      );
+    const FETCH_STUDENTS_PACKAGES = firestore()
+      .collection('packages')
+      .where('approved', '==', 'approved')
+      .where('planCategory', '==', 'Student')
+      .onSnapshot(snapshot =>
+        setStudentPackages(
+          snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})),
+        ),
+      );
 
     return (
       FETCH_PROFESSIONAL,
       FETCH_BLOGS,
       FETCH_POSTS,
       FETCH_PATIENTS,
-      FETCH_SESSIONS
+      FETCH_SESSIONS,
+      FETCH_HEADER,
+      FETCH_PACKAGES,
+      FETCH_STUDENTS_PACKAGES,
+      FETCH_PATIENTS_REPORTS,
+      FETCH_PROFESSIONAL_REPORTS
     );
   }, [navigation]);
+
+  // setPatientReports
+  // setProfessionalReports
+  let Reports = ProfessionalReports.length + patientReports.length || 0;
 
   const [features] = React.useState(featuresData);
   const [allMentladaData] = React.useState(MentladaData);
@@ -159,37 +292,57 @@ const Home = ({navigation, route}) => {
           <Text style={{...FONTS.h1, color: COLORS.secondary}}>Hello!</Text>
           <Text style={{...FONTS.body2}}>Dear Admin</Text>
         </View>
+      </View>
+    );
+  }
 
-        <View style={{alignItems: 'center', justifyContent: 'center'}}>
-          <TouchableOpacity
+  function renderReports() {
+    return (
+      <TouchableOpacity
+        style={{
+          marginBottom: SIZES.padding * 2,
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+        onPress={() => navigation.navigate('Report')}
+        activeOpacity={0.7}>
+        <LinearGradient
+          colors={[COLORS.lightpurple, COLORS.lightGreen]}
+          start={{x: 0, y: 1}}
+          end={{x: 0, y: 0}}
+          style={{
+            flexDirection: 'row',
+            flex: 1,
+            marginVertical: 5,
+            borderRadius: 7,
+            alignItems: 'center',
+            padding: 10,
+            paddingVertical: 20,
+            paddingHorizontal: 20,
+          }}>
+          <View
             style={{
-              height: 40,
-              width: 40,
-              justifyContent: 'center',
+              flex: 1,
               alignItems: 'center',
-              backgroundColor: COLORS.lightGray,
+              justifyContent: 'flex-start',
+              flexDirection: 'row',
             }}>
             <Image
-              source={icons.bell}
-              style={{
-                width: 20,
-                height: 20,
-                tintColor: COLORS.secondary,
-              }}
+              source={icons.caution}
+              style={{width: 25, height: 25, tintColor: COLORS.primary}}
             />
-            <View
-              style={{
-                position: 'absolute',
-                top: -5,
-                right: -5,
-                height: 10,
-                width: 10,
-                backgroundColor: COLORS.red,
-                borderRadius: 5,
-              }}></View>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <Text style={{...FONTS.h4_2, paddingLeft: 15}}>{Reports}</Text>
+            <Text style={{...FONTS.body4, paddingLeft: 10}}>
+              Active Reports!
+            </Text>
+          </View>
+          <Icon
+            name="chevron-forward-outline"
+            size={20}
+            color={COLORS.primary}
+          />
+        </LinearGradient>
+      </TouchableOpacity>
     );
   }
 
@@ -216,14 +369,18 @@ const Home = ({navigation, route}) => {
             justifyContent: 'center',
             marginHorizontal: SIZES.padding,
           }}>
-          <View>
-            <Text
-              style={{
-                ...FONTS.body3,
-              }}>
-              If it's out of your hands, it deserves freedom from your mind too.
-            </Text>
-          </View>
+          {Header.map(item => (
+            <HeaderText
+              key={item.id}
+              item={item}
+              onEditPress={() =>
+                navigation.navigate('EditHeaderText', {
+                  id: item.id,
+                  HeaderText: item.HeaderText,
+                })
+              }
+            />
+          ))}
         </View>
       </LinearGradient>
     );
@@ -240,7 +397,7 @@ const Home = ({navigation, route}) => {
       <TouchableOpacity
         style={{
           marginBottom: SIZES.padding * 2,
-          width: 60,
+          width: 75,
           alignItems: 'center',
         }}
         onPress={() =>
@@ -254,7 +411,7 @@ const Home = ({navigation, route}) => {
         <View
           style={{
             height: 50,
-            width: 70,
+            width: 75,
             marginBottom: 5,
             borderRadius: 7,
             backgroundColor: item.backgroundColor,
@@ -265,13 +422,13 @@ const Home = ({navigation, route}) => {
             source={item.icon}
             resizeMode="contain"
             style={{
-              height: 20,
-              width: 20,
+              height: item.height,
+              width: item.width,
               tintColor: item.color,
             }}
           />
         </View>
-        <Text style={{textAlign: 'center', flexWrap: 'wrap', ...FONTS.body4}}>
+        <Text style={{textAlign: 'center', flexWrap: 'wrap', ...FONTS.h7}}>
           {item.description}
         </Text>
       </TouchableOpacity>
@@ -296,6 +453,7 @@ const Home = ({navigation, route}) => {
         {renderHeader()}
         {renderBanner()}
         {renderFeatures()}
+        {renderReports()}
         {renderDataHeader()}
       </View>
     );
@@ -313,7 +471,7 @@ const Home = ({navigation, route}) => {
     );
 
     const renderItem = ({item}) => (
-      <TouchableOpacity
+      <View
         style={{
           marginVertical: SIZES.base,
           width: SIZES.width / 2.5,
@@ -376,11 +534,29 @@ const Home = ({navigation, route}) => {
                 {session.length || '0'}
               </Text>
             </>
+          ) : item.title == 'Active Packages' ? (
+            <>
+              <Text style={{...FONTS.h2, color: COLORS.secondary}}>
+                {packages.length || '0'}
+              </Text>
+            </>
+          ) : item.title == 'Mentlada profits' ? (
+            <>
+              <Text style={{...FONTS.h2, color: COLORS.secondary}}>
+                RM{profitTotal > 0 ? profitTotal : 0}
+              </Text>
+            </>
+          ) : item.title == 'Students Packages' ? (
+            <>
+              <Text style={{...FONTS.h2, color: COLORS.secondary}}>
+                {studentPackages.length || '0'}
+              </Text>
+            </>
           ) : null}
           <Text style={{...FONTS.body4}}>{item.title}</Text>
           {/* <Text style={{...FONTS.body4}}>{item.description}</Text> */}
         </View>
-      </TouchableOpacity>
+      </View>
     );
 
     return (
