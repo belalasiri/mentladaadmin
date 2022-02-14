@@ -1,5 +1,12 @@
 import React, {useState, useEffect, useContext, useLayoutEffect} from 'react';
-import {Text, View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ImageBackground,
+} from 'react-native';
 // DataBase
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -9,9 +16,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import ReadMore from 'react-native-read-more-text';
 import {BallIndicator, BarIndicator} from 'react-native-indicators';
 import moment from 'moment';
-import {COLORS, FONTS, SIZES} from '../../constants';
+import {COLORS, FONTS, images, SIZES} from '../../constants';
 
-const ReviewerData = ({item, dataLength}) => {
+const ReviewerData = ({item, dataLength, onDeleteReview}) => {
   const [usersRaiting, setUsersRaiting] = useState(null);
   const [isReloading, setReloading] = useState(false);
   const [defaultRating, setDefaultRating] = useState(item.Review);
@@ -35,10 +42,6 @@ const ReviewerData = ({item, dataLength}) => {
       });
   };
 
-  //   const rev = () => {
-
-  //   };
-
   let cul = item.Review * dataLength;
 
   useEffect(() => {
@@ -47,90 +50,97 @@ const ReviewerData = ({item, dataLength}) => {
   }, []);
 
   return (
-    <LinearGradient
-      colors={['#f7f3fc', COLORS.white]}
-      start={{x: 0, y: 0}}
-      end={{x: 1, y: 0}}
-      style={{
-        margin: 10,
-        alignItems: 'flex-start',
-        borderRadius: 7,
-        padding: SIZES.padding * 2 - 5,
-        justifyContent: 'center',
-      }}>
-      <View style={styles.container}>
-        {isReloading ? (
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 50,
-              height: 50,
-            }}>
-            <BallIndicator color={COLORS.secondary} size={20} />
-          </View>
-        ) : (
-          <Avatar
-            size={50}
-            rounded
-            source={{
-              uri: usersRaiting
-                ? usersRaiting.userImg ||
-                  'https://gcdn.pbrd.co/images/in5sUpqlUHfV.png?o=1'
-                : 'https://gcdn.pbrd.co/images/in5sUpqlUHfV.png?o=1',
-            }}
-          />
-        )}
-        <View style={styles.infoContiner}>
-          <View
-            style={{
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flex: 1,
-              flexDirection: 'row',
-            }}>
-            <Text style={styles.Name}>
-              {usersRaiting ? usersRaiting.fname || 'Mentlada' : 'Mentlada'}{' '}
-              {usersRaiting ? usersRaiting.lname || 'Patient' : 'Patient'}
-            </Text>
-            <Text
+    <TouchableOpacity
+      style={{}}
+      activeOpacity={0.8}
+      onPress={() => onDeleteReview(item.id)}>
+      <LinearGradient
+        colors={['#f7f3fc', COLORS.white]}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 0}}
+        style={{
+          margin: 10,
+          alignItems: 'flex-start',
+          borderRadius: 7,
+          padding: SIZES.padding * 2 - 5,
+          justifyContent: 'center',
+        }}>
+        <View style={styles.container}>
+          {isReloading ? (
+            <View
               style={{
-                ...FONTS.body6,
-                color: COLORS.primary,
-                marginTop: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 50,
+                height: 50,
               }}>
-              {moment(item.ReviewTime.toDate()).format('LLL')}{' '}
-            </Text>
-          </View>
-          <View style={{flexDirection: 'row', marginTop: 0}}>
-            {maxRating.map((item, key) => {
-              return (
-                <View key={item}>
-                  <Image
-                    style={styles.starImgStyle}
-                    source={
-                      item <= defaultRating
-                        ? {uri: starImgFilled}
-                        : {uri: starImgCorner}
-                    }
-                  />
-                </View>
-              );
-            })}
+              <BallIndicator color={COLORS.secondary} size={20} />
+            </View>
+          ) : (
+            <Avatar
+              size={50}
+              rounded
+              source={{
+                uri: usersRaiting
+                  ? usersRaiting.userImg ||
+                    'https://gcdn.pbrd.co/images/in5sUpqlUHfV.png?o=1'
+                  : 'https://gcdn.pbrd.co/images/in5sUpqlUHfV.png?o=1',
+              }}
+            />
+          )}
+          <View style={styles.infoContiner}>
+            <View
+              style={{
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flex: 1,
+                flexDirection: 'row',
+              }}>
+              <Text style={styles.Name}>
+                {usersRaiting ? usersRaiting.fname || 'Mentlada' : 'Mentlada'}{' '}
+                {usersRaiting ? usersRaiting.lname || 'Patient' : 'Patient'}
+              </Text>
+              <Text
+                style={{
+                  ...FONTS.body6,
+                  color: COLORS.primary,
+                  marginTop: 5,
+                }}>
+                {moment(item.ReviewTime.toDate()).format('LLL')}{' '}
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row', marginTop: 0}}>
+              {maxRating.map((item, key) => {
+                return (
+                  <View key={item}>
+                    <Image
+                      style={styles.starImgStyle}
+                      source={
+                        item <= defaultRating
+                          ? {uri: starImgFilled}
+                          : {uri: starImgCorner}
+                      }
+                    />
+                  </View>
+                );
+              })}
+            </View>
           </View>
         </View>
-      </View>
-      <View style={{marginTop: 10}}>
-        {item.ReviewContent == 'No review' ? null : (
-          <ReadMore
-            numberOfLines={3}
-            renderTruncatedFooter={_renderTruncatedFooter}
-            renderRevealedFooter={_renderRevealedFooter}>
-            <Text style={styles.ReviewContentStyles}>{item.ReviewContent}</Text>
-          </ReadMore>
-        )}
-      </View>
-    </LinearGradient>
+        <View style={{marginTop: 10}}>
+          {item.ReviewContent == 'No review' ? null : (
+            <ReadMore
+              numberOfLines={3}
+              renderTruncatedFooter={_renderTruncatedFooter}
+              renderRevealedFooter={_renderRevealedFooter}>
+              <Text style={styles.ReviewContentStyles}>
+                {item.ReviewContent}
+              </Text>
+            </ReadMore>
+          )}
+        </View>
+      </LinearGradient>
+    </TouchableOpacity>
   );
 };
 const _renderTruncatedFooter = handlePress => {

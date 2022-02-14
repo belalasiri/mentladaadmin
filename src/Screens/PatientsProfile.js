@@ -102,7 +102,7 @@ const PatientsProfile = ({route, navigation}) => {
       .then(documentSnapshot => {
         if (documentSnapshot.exists) {
           setPackageData(documentSnapshot.data().seconds);
-          console.log(packageData);
+          // console.log(packageData);
         } else return 0;
       })
       .catch(e => {

@@ -1,29 +1,13 @@
-import React, {useState, useEffect, useContext, useLayoutEffect} from 'react';
-import {
-  View,
-  SafeAreaView,
-  TouchableOpacity,
-  Text,
-  Image,
-  FlatList,
-  StatusBar,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, Alert} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, icons, images, SIZES} from '../../constants';
-
-//DataBase
-import storage from '@react-native-firebase/storage';
-import firestore, {firebase} from '@react-native-firebase/firestore';
+import {COLORS, FONTS, SIZES} from '../../constants';
 
 import {Button} from 'react-native-elements';
 import {BallIndicator} from 'react-native-indicators';
 
-const PlansCustom = ({item, navigation, handleNavigation}) => {
-  const [plans, setPlans] = useState([]);
+const PlansCustom = ({item, handleNavigation}) => {
   const [isUpdating, setUpdating] = useState(false);
-  const [dialog, setDialog] = useState(false);
 
   const Content = ({HederText, Body, Body2, Price, priceInfo, onPress}) => {
     return (
@@ -91,23 +75,6 @@ const PlansCustom = ({item, navigation, handleNavigation}) => {
     );
   };
 
-  useLayoutEffect(() => {
-    const FETCH_PLANS = firestore()
-      .collection('Plans')
-      .onSnapshot(snapshot =>
-        setPlans(
-          snapshot.docs.map(doc => ({
-            id: doc.id,
-            data: doc.data(),
-            planPrice: doc.data().planPrice,
-            planType: doc.data().planType,
-            planFeatures: doc.data().planFeatures,
-          })),
-        ),
-      );
-    return FETCH_PLANS;
-  }, []);
-
   const onDelete = () => {
     setUpdating(true);
     firebase
@@ -118,14 +85,14 @@ const PlansCustom = ({item, navigation, handleNavigation}) => {
       .then(() => {
         setUpdating(false);
         console.log('This plan is no longer active!');
-        Alert.alert('Successfully!', 'This plan is no longer active');
+        Alert.alert('Successfully Deleted!', 'This plan is no longer active');
       });
   };
 
   const handleDelete = planID => {
     Alert.alert(
-      'Delete post',
-      'Are you sure you want to delete this post?',
+      'Delete plan',
+      'Are you sure you want to delete this plan?',
       [
         {
           text: 'Cancel',
@@ -160,7 +127,6 @@ const PlansCustom = ({item, navigation, handleNavigation}) => {
             justifyContent: 'center',
             marginHorizontal: 5,
           }}>
-          {/* <Text>{item.planCategory}</Text> */}
           {item.planType == 'Premium' ? (
             <View
               style={{
@@ -261,17 +227,6 @@ const PlansCustom = ({item, navigation, handleNavigation}) => {
           </View>
         </View>
       </LinearGradient>
-
-      {/* <FlatList
-        initialNumToRender={7}
-        data={plans}
-        keyExtractor={item => item.id}
-        renderItem={({id, item}) => (
-          <View>
-            <Text>s</Text>
-          </View>
-        )}
-      /> */}
     </View>
   );
 };

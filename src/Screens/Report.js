@@ -157,7 +157,7 @@ const Report = ({navigation}) => {
                         color: COLORS.secondary,
                         paddingRight: 5,
                         paddingVertical: 7,
-                        ...FONTS.b5,
+                        ...FONTS.body4,
                       }}
                       numberOfLines={3}
                       ellipsizeMode="tail">
@@ -235,7 +235,7 @@ const Report = ({navigation}) => {
                         color: COLORS.secondary,
                         paddingRight: 5,
                         paddingVertical: 7,
-                        ...FONTS.b5,
+                        ...FONTS.body4,
                       }}
                       numberOfLines={3}
                       ellipsizeMode="tail">

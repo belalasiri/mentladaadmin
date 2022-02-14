@@ -443,7 +443,7 @@ const Details = ({navigation, route}) => {
   };
 
   const deletePost = postId => {
-    console.log('Current Post Id: ', postId);
+    // console.log('Current Post Id: ', postId);
     setDeleting(true);
 
     firestore()
@@ -516,7 +516,7 @@ const Details = ({navigation, route}) => {
   // -----------------------------------------------------------------------------------------------
 
   const deletePostz = postId => {
-    console.log('Current Post Id: ', postId);
+    // console.log('Current Post Id: ', postId);
     setDeleting(true);
 
     firestore()

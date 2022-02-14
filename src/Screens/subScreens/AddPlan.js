@@ -1,16 +1,12 @@
-import React, {useState, useEffect, useContext, useLayoutEffect} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   SafeAreaView,
   TouchableOpacity,
   Text,
   Image,
-  FlatList,
-  StatusBar,
   TextInput,
   StyleSheet,
-  Keyboard,
-  TouchableWithoutFeedback,
   ToastAndroid,
 } from 'react-native';
 
@@ -23,7 +19,6 @@ import {Picker} from '@react-native-picker/picker';
 import {COLORS, FONTS, icons, images, SIZES} from '../../constants';
 
 //DataBase
-import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 
 const Header = ({onBacePress, name, icon, iconColor}) => {
@@ -86,7 +81,7 @@ const AddPlan = ({navigation}) => {
 
   const handleValueChange = itemValue => setPlanType(itemValue);
 
-  const submitBlog = async () => {
+  const addPlan = async () => {
     firestore()
       .collection('Plans')
       .add({
@@ -99,11 +94,10 @@ const AddPlan = ({navigation}) => {
       .then(() => {
         navigation.goBack();
         ToastAndroid.showWithGravity(
-          'Your post has been published Successfully',
+          'The plan published Successfully',
           ToastAndroid.LONG,
           ToastAndroid.CENTER,
         );
-        // setBlog(null);
       })
       .catch(error => {
         console.log(
@@ -273,7 +267,7 @@ const AddPlan = ({navigation}) => {
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            onPress={submitBlog}>
+            onPress={addPlan}>
             <Text style={{...FONTS.h5}}>Add the plan</Text>
           </TouchableOpacity>
         </LinearGradient>
@@ -286,9 +280,6 @@ export default AddPlan;
 const styles = StyleSheet.create({
   pickerStyles: {
     width: '100%',
-    // flex: 1,
-    // color: colors.subtext,
-    //   {color: planType ? COLORS.secondary : '#c19ce9'},
   },
   pickerStylesTest: {
     width: '100%',

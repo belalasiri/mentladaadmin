@@ -14,6 +14,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  Alert,
+  ToastAndroid,
 } from 'react-native';
 
 // DataBase
@@ -83,6 +85,45 @@ const ReviewsList = ({navigation, route}) => {
     return getProfessionalRaiting;
   }, [navigation]);
 
+  const handleDeleteReview = postId => {
+    Alert.alert(
+      'Delete Review',
+      'Are you sure you want to delete this Review?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed!'),
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => deleteFirestoreDataz(postId),
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  const deleteFirestoreDataz = postId => {
+    firestore()
+      .collection('Professional')
+      .doc(route.params.professionalId)
+      .collection('Rating')
+      .doc(postId)
+      .delete()
+      .then(() => {
+        // setDeleting(false);
+        ToastAndroid.showWithGravityAndOffset(
+          'Your post has been deleted successfully!',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          0,
+          200,
+        );
+        // setDeleted(true);
+      })
+      .catch(e => console.log('Error deleting posst.', e));
+  };
   let starRatings = 0;
   professionalRating.forEach(item => {
     starRatings += item.Review / professionalRating.length;
@@ -95,6 +136,14 @@ const ReviewsList = ({navigation, route}) => {
             style={{
               flex: 1,
             }}>
+            <Text
+              style={{
+                ...FONTS.h4_2,
+                textAlign: 'center',
+                paddingTop: 10,
+              }}>
+              Press the review to delete
+            </Text>
             {isReloading ? (
               <View
                 style={{
@@ -114,6 +163,7 @@ const ReviewsList = ({navigation, route}) => {
                     key={id}
                     item={item}
                     dataLength={professionalRating.length}
+                    onDeleteReview={handleDeleteReview}
                   />
                 )}
               />

@@ -29,17 +29,7 @@ import {COLORS, FONTS, icons, SIZES} from '../../constants';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Image} from 'react-native';
-import {
-  BallIndicator,
-  BarIndicator,
-  DotIndicator,
-  MaterialIndicator,
-  PacmanIndicator,
-  PulseIndicator,
-  SkypeIndicator,
-  UIActivityIndicator,
-  WaveIndicator,
-} from 'react-native-indicators';
+import {BallIndicator} from 'react-native-indicators';
 const Header = ({onBacePress, name, icon, iconColor}) => {
   return (
     <View
@@ -93,9 +83,6 @@ const Header = ({onBacePress, name, icon, iconColor}) => {
 };
 
 const EditHeaderText = ({navigation, route}) => {
-  const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [transferred, setTransferred] = useState(0);
   const [loading, setLoading] = useState(true);
   const [headers, setHeader] = useState(null);
 
@@ -107,7 +94,7 @@ const EditHeaderText = ({navigation, route}) => {
       .get()
       .then(documentSnapshot => {
         if (documentSnapshot.exists) {
-          console.log('User Data', documentSnapshot.data());
+          // console.log('User Data', documentSnapshot.data());
           setHeader(documentSnapshot.data());
           setLoading(false);
         }
